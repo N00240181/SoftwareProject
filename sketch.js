@@ -7,6 +7,7 @@ let playerSpeed = 5;
 
 function preload() {
     playerImg = loadImage('/images/player/player.gif');
+    bgImg = loadImage('/images/background/background.png')
 }
 
 function incrementScore() {
@@ -51,8 +52,10 @@ function setup() {
 }
 
 function draw() {
-    background(bgColor);
+    background(bgImg);
     textSize(12);
+    fill("white")
+    stroke(1)
     text(`Score: ${score}`, 10, 20);
     text(`Health: ${health}`, 10, 40);
     spawnPlayer();
