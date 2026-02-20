@@ -1,0 +1,4 @@
+Week 5: Get the autoscrolling working and spawning random items.
+Week 6: Make the background change based on score, add menus,
+Week 7: Add shop and different upgrades.
+Week 8: Finish designing and add music sound effects etc.
