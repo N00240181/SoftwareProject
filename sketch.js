@@ -1,5 +1,5 @@
 let score = 0;
-let health = 100;
+let health = 1000;
 let bgColor = "cyan";
 let player;
 let playerX = 10;
@@ -13,6 +13,8 @@ let itemX = 0
 let itemY = 0
 let fishWidth = 50
 let fishHeight = 50;
+let itemWidth = 75;
+let itemHeight = 75;
 let randItemImage;
 let randFishImage;
 
@@ -66,7 +68,7 @@ function spawnPlayer() {
 }
 
 function damageHealth() {
-    health -= 10;
+    health -= 1;
     if (health <= 0) {
         bgColor = "black";
         fill("red");
@@ -134,12 +136,15 @@ function spawnFish() {
     fishes.push(fish);
 }
 
-function moveItems() {
+/* function moveItems() {
     for (let i = 0; i < items.length; i++) {
-        image(items[i].img, items[i].itemX, items[i].itemY, 100, 100);
+        image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
         items[i].itemX -= 1
+        if(playerX < items[i].itemX + itemWidth && playerX > items[i].itemX - itemWidth && playerY < items[i].itemY + itemHeight && playerY > items[i].itemY - itemHeight) {
+            damageHealth();
+        }
     }
-}
+} */
 
 function moveFishes() {
     for (let i = 0; i < fishes.length; i++) {
@@ -148,8 +153,18 @@ function moveFishes() {
         /* if(playerX == fishes[i].fishX && playerY == fishes[i].fishY) {
             damageHealth()
         } */
-        if(playerX < fishes[i].fishX + fishWidth && playerX > fishes[i].fishX - fishWidth && playerY < fishes[i].fishY + fishHeight && playerY > fishes[i].fishY - fishHeight) {
-            console.log("boom")
+    }
+}
+
+function moveItems() {
+    for (let i = 0; i < items.length; i++) {
+        image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
+        items[i].itemX -= 1;
+        if(playerX < items[i].itemX + itemWidth && playerX > items[i].itemX - itemWidth && playerY < items[i].itemY + itemHeight && playerY > items[i].itemY - itemHeight) {
+            if(items[i].img == itemImages[0]) {
+            damageHealth();
+            }
+        
         }
     }
 }
