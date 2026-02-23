@@ -5,6 +5,7 @@ let player;
 let playerX = 10;
 let playerY = 100;
 let playerSpeed = 5;
+let itemSpeed = 2;
 let fishes = [];
 let fishX;
 let fishY;
@@ -60,14 +61,8 @@ function preload() {
 }
 
 function incrementScore(type) {
-    if(type === 0) {
-        score += 20;
-        return score;
-    }
-    else {
-    score += 1;
+    score += type;
     return score;
-    }
 }
 
 function spawnPlayer() {
@@ -107,8 +102,8 @@ function setup() {
     createCanvas(640, 480);
     frameRate(60);
     /* setInterval(incrementScore, 10); */
-    setInterval(spawnItems, 1000);
-    setInterval(spawnFish, 1000);
+    setInterval(spawnItems, 2000);
+    setInterval(spawnFish, 7000);
     /* setInterval(damageHealth, 120) */
 }
 
@@ -143,16 +138,6 @@ function spawnFish() {
     fishes.push(fish);
 }
 
-/* function moveItems() {
-    for (let i = 0; i < items.length; i++) {
-        image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
-        items[i].itemX -= 1
-        if(playerX < items[i].itemX + itemWidth && playerX > items[i].itemX - itemWidth && playerY < items[i].itemY + itemHeight && playerY > items[i].itemY - itemHeight) {
-            damageHealth();
-        }
-    }
-} */
-
 function moveFishes() {
     for (let i = 0; i < fishes.length; i++) {
         image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
@@ -166,13 +151,81 @@ function moveFishes() {
 function moveItems() {
     for (let i = 0; i < items.length; i++) {
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
-        items[i].itemX -= 1;
+        items[i].itemX -= itemSpeed;
         if(playerX < items[i].itemX + itemWidth && playerX > items[i].itemX - itemWidth && playerY < items[i].itemY + itemHeight && playerY > items[i].itemY - itemHeight) {
-            if(items[i].img == itemImages[0]) {
-                incrementScore(0)
+            if(items[i].img == itemImages[0]) { // Black Bag
+                incrementScore(50)
                 items.splice(i, 1)
             }
-        
+            if(items[i].img == itemImages[1]) { // Brown Bag
+                incrementScore(30)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[2]) { // Food Bag
+                incrementScore(100)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[3]) { // Paper Bag
+                incrementScore(50)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[4]) { // Small Bag
+                incrementScore(20)
+                items.splice(i, 1)
+            }
+
+            if(items[i].img == itemImages[5]) { // Blue Balloon
+                incrementScore(200)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[6]) { // Green Balloon
+                incrementScore(150)
+                items.splice(i, 1)
+            }
+
+            if(items[i].img == itemImages[7]) { // Bottle
+                incrementScore(200)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[8]) { // Crushed Bottle
+                incrementScore(125)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[9]) { // Piss Bottle
+                incrementScore(75)
+                items.splice(i, 1)
+            }
+
+            if(items[i].img == itemImages[10]) { // Hook
+                incrementScore(300)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[11]) { // Net
+                incrementScore(500)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[12]) { // Rod
+                incrementScore(200)
+                items.splice(i, 1)
+            }
+
+            if(items[i].img == itemImages[13]) { // Brown Glass
+                incrementScore(125)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[14]) { // White Glass
+                incrementScore(50)
+                items.splice(i, 1)
+            }
+
+            if(items[i].img == itemImages[15]) { // Closed Box
+                incrementScore(45)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[16]) { // Kelpo
+                incrementScore(65)
+                items.splice(i, 1)
+            }
         }
     }
 }
