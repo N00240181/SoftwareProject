@@ -9,8 +9,10 @@ let fishes = [];
 let fishX;
 let fishY;
 let items = [];
-let itemX;
-let itemY;
+let itemX = 0
+let itemY = 0
+let fishWidth = 50
+let fishHeight = 50;
 let randItemImage;
 let randFishImage;
 
@@ -64,7 +66,7 @@ function spawnPlayer() {
 }
 
 function damageHealth() {
-    health -= 1;
+    health -= 10;
     if (health <= 0) {
         bgColor = "black";
         fill("red");
@@ -141,7 +143,13 @@ function moveItems() {
 
 function moveFishes() {
     for (let i = 0; i < fishes.length; i++) {
-        image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, 100, 100);
+        image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
         fishes[i].fishX -= 1
+        /* if(playerX == fishes[i].fishX && playerY == fishes[i].fishY) {
+            damageHealth()
+        } */
+        if(playerX < fishes[i].fishX + fishWidth && playerX > fishes[i].fishX - fishWidth && playerY < fishes[i].fishY + fishHeight && playerY > fishes[i].fishY - fishHeight) {
+            console.log("boom")
+        }
     }
 }
