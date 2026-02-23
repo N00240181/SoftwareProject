@@ -17,6 +17,7 @@ let itemWidth = 75;
 let itemHeight = 75;
 let randItemImage;
 let randFishImage;
+let type;
 
 function preload() {
     playerImg = loadImage('images/player/player.gif');
@@ -58,9 +59,15 @@ function preload() {
     ]
 }
 
-function incrementScore() {
+function incrementScore(type) {
+    if(type === 0) {
+        score += 20;
+        return score;
+    }
+    else {
     score += 1;
     return score;
+    }
 }
 
 function spawnPlayer() {
@@ -99,7 +106,7 @@ function movePlayer() {
 function setup() {
     createCanvas(640, 480);
     frameRate(60);
-    setInterval(incrementScore, 10);
+    /* setInterval(incrementScore, 10); */
     setInterval(spawnItems, 1000);
     setInterval(spawnFish, 1000);
     /* setInterval(damageHealth, 120) */
@@ -162,7 +169,8 @@ function moveItems() {
         items[i].itemX -= 1;
         if(playerX < items[i].itemX + itemWidth && playerX > items[i].itemX - itemWidth && playerY < items[i].itemY + itemHeight && playerY > items[i].itemY - itemHeight) {
             if(items[i].img == itemImages[0]) {
-            damageHealth();
+                incrementScore(0)
+                items.splice(i, 1)
             }
         
         }
