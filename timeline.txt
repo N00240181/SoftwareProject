@@ -2,3 +2,13 @@ Week 5: Get the autoscrolling working and spawning random items.
 Week 6: Make the background change based on score, add menus,
 Week 7: Add shop and different upgrades.
 Week 8: Finish designing and add music sound effects etc.
+
+function moveItems() {
+    for (let i = 0; i < weapons.length; i++) {
+        image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
+        weapons[i].weaponX -= weaponSpeed;
+        if(playerX < weapons[i].weaponX + weaponWidth && playerX > weapons[i].weaponX - weaponWidth && playerY < weapons[i].weaponY + weaponHeight && playerY > weapons[i].weaponY - weaponHeight) {
+            
+    }
+}
+}

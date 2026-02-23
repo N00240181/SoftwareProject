@@ -12,10 +12,16 @@ let fishY;
 let items = [];
 let itemX = 0
 let itemY = 0
+let weapons = [];
+let weaponX = 0
+let weaponY = 0;
 let fishWidth = 50
 let fishHeight = 50;
 let itemWidth = 75;
 let itemHeight = 75;
+let weaponWidth = 25;
+let weaponHeight = 25;
+let weaponSpeed = 2
 let randItemImage;
 let randFishImage;
 let type;
@@ -57,6 +63,15 @@ function preload() {
         loadImage('images/fish/fish5.png'),
         loadImage('images/fish/fish6.png'),
         loadImage('images/fish/fish7.png')
+    ]
+    weaponImages = [
+        loadImage('images/weapons/cutlass.png'),
+        loadImage('images/weapons/dagger.png'),
+        loadImage('images/weapons/knife.png'),
+        loadImage('images/weapons/mace.png'),
+        loadImage('images/weapons/machete.png'),
+        loadImage('images/weapons/pipe.png'),
+        loadImage('images/weapons/spear.png')
     ]
 }
 
@@ -102,8 +117,9 @@ function setup() {
     createCanvas(640, 480);
     frameRate(60);
     /* setInterval(incrementScore, 10); */
-    setInterval(spawnItems, 2000);
+    setInterval(spawnItems, 100);
     setInterval(spawnFish, 7000);
+    setInterval(spawnWeapons, 500);
     /* setInterval(damageHealth, 120) */
 }
 
@@ -118,6 +134,7 @@ function draw() {
     movePlayer();
     moveItems()
     moveFishes();
+    moveWeapons();
 };
 
 function spawnItems() {
@@ -127,6 +144,15 @@ function spawnItems() {
         img: itemImages[Math.floor(random(itemImages.length))]
     }
     items.push(item);
+}
+
+function spawnWeapons() {
+    let weapon = {
+        weaponX: 690,
+        weaponY: Math.floor(Math.random() * 420),
+        img: weaponImages[Math.floor(random(weaponImages.length))]
+    }
+    weapons.push(weapon);
 }
 
 function spawnFish() {
@@ -228,4 +254,41 @@ function moveItems() {
             }
         }
     }
+}
+
+function moveWeapons() {
+    for (let i = 0; i < weapons.length; i++) {
+        image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
+        weapons[i].weaponX -= weaponSpeed;
+        if(playerX < weapons[i].weaponX + weaponWidth && playerX > weapons[i].weaponX - weaponWidth && playerY < weapons[i].weaponY + weaponHeight && playerY > weapons[i].weaponY - weaponHeight) {
+            if(items[i].img == itemImages[0]) { // Cutlass
+                damageHealth(10)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[0]) { // Dagger
+                damageHealth(8)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[0]) { // Knife
+                damageHealth(15)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[0]) { // Mace
+                damageHealth(50)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[0]) { // Machete
+                damageHealth(20)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[0]) { // Pipe
+                damageHealth(5)
+                items.splice(i, 1)
+            }
+            if(items[i].img == itemImages[0]) { // Spear
+                damageHealth(12)
+                items.splice(i, 1)
+            }
+    }
+}
 }
