@@ -19,7 +19,7 @@ let itemSpawnRate = 500;
 let itemX = 0;
 let itemY = 0;
 let weapons = [];
-let weaponSpawnRate = 700
+let weaponSpawnRate = 700;
 let weaponX = 0;
 let weaponY = 0;
 let gold = 0;
@@ -29,7 +29,7 @@ let itemWidth = 75;
 let itemHeight = 75;
 let weaponWidth = 50;
 let weaponHeight = 50;
-let weaponSpeed = 2
+let weaponSpeed = 2;
 let randItemImage;
 let randFishImage;
 let type;
@@ -230,8 +230,10 @@ function moveFishes() {
 }
 
 function moveItems() {
-    if(health > 0) {
     for (let i = items.length - 1; i >= 0; i--) {
+        if(items[i].itemX < 0) {
+            items.splice(i, 1)
+        }
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
         items[i].itemX -= itemSpeed;
         if(playerX < items[i].itemX + itemWidth && playerX > items[i].itemX - itemWidth && playerY < items[i].itemY + itemHeight && playerY > items[i].itemY - itemHeight) {
@@ -311,11 +313,12 @@ function moveItems() {
         }
     }
 }
-}
 
 function moveWeapons() {
-    if(health > 0) {
     for (let i = weapons.length - 1; i >= 0; i--) {
+        if(weapons[i].weaponX < 0) {
+            weapons.splice(i, 1)
+        }
         image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
         weapons[i].weaponX -= weaponSpeed;
         if(playerX < weapons[i].weaponX + weaponWidth && playerX > weapons[i].weaponX - weaponWidth && playerY < weapons[i].weaponY + weaponHeight && playerY > weapons[i].weaponY - weaponHeight) {
@@ -357,6 +360,5 @@ function moveWeapons() {
                 weapons.splice(i, 1)
             }
     }
-}
 }
 }
