@@ -1,5 +1,8 @@
 let canvasWidth = 640;
 let canvasHeight = 480;
+let itemInterval;
+let weaponInterval;
+let fishInterval;
 let score = 0;
 let health = 1000;
 let bgColor = "cyan";
@@ -12,11 +15,14 @@ let fishes = [];
 let fishX;
 let fishY;
 let items = [];
+let itemSpawnRate = 500;
 let itemX = 0;
 let itemY = 0;
 let weapons = [];
+let weaponSpawnRate = 700
 let weaponX = 0;
 let weaponY = 0;
+let gold = 0;
 let fishWidth = 50;
 let fishHeight = 50;
 let itemWidth = 75;
@@ -91,11 +97,10 @@ function spawnPlayer() {
 function damageHealth(num) {
     health -= num;
     if (health <= 0) {
-        bgColor = "black";
-        fill("red");
-        textSize(36);
+        reset()
         text("Finished", 10, 80);
-        noLoop();
+        gold = score / 100
+        menu = 0
     }
 }
 
@@ -114,20 +119,35 @@ function movePlayer() {
     }
 }
 
+function reset() {
+    playerX = 0
+    playerY = 0
+    items = [];
+    weapons = [];
+    fishes = [];
+    clearInterval(itemInterval);
+    clearInterval(fishInterval);
+    clearInterval(weaponInterval);
+}
+
 function setup() {
     createCanvas(canvasWidth, canvasHeight);
-    frameRate(120);
-    setInterval(spawnItems, 500);
-    setInterval(spawnFish, 7000);
-    setInterval(spawnWeapons, 200);
+    frameRate(60);
+    itemInterval = setInterval(spawnItems, itemSpawnRate);
+    fishInterval = setInterval(spawnFish, 7000);
+    weaponInterval = setInterval(spawnWeapons, weaponSpawnRate);
 }
 
 function draw() {
-    if(menu == 0) {
+    if(menu == 0 || health <= 0) {
         background("cyan")
+        textSize(18)
+        text(`Gold: ${gold}`, 20, 20)
+        textSize(42)
+        text("Trash Game", 200, 100)
         if(keyIsDown(ENTER)) {
+            reset()
             menu = 1
-            fill("black")
         }
     }
     if(menu == 1) {
@@ -147,19 +167,27 @@ function draw() {
     moveWeapons();
     if(keyIsDown(ESCAPE)) {
         menu = 2
+        itemSpawnRate += 1000
         }
     }
     if(menu == 2) {
         background(0, 1)
         fill("white")
         text("Game is paused", 10, 60)
-        
+    }
+    if(menu == 3) {
+        textSize(24)
+        background("grey")
+        text("Shop", 20, 40)
+        text("Jetpack: 200 gold", 20, 120)
     }
 }
 
 function keyPressed(event) {
     if ((event.key === 'l' || event.key === 'L') && menu !== 0) 
         menu = 2;
+    if ((event.key === 'p' || event.key === 'P') && menu == 0) 
+        menu = 3;
     if (keyCode === ENTER) 
         menu = 1;
 }
@@ -202,6 +230,7 @@ function moveFishes() {
 }
 
 function moveItems() {
+    if(health > 0) {
     for (let i = items.length - 1; i >= 0; i--) {
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
         items[i].itemX -= itemSpeed;
@@ -282,8 +311,10 @@ function moveItems() {
         }
     }
 }
+}
 
 function moveWeapons() {
+    if(health > 0) {
     for (let i = weapons.length - 1; i >= 0; i--) {
         image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
         weapons[i].weaponX -= weaponSpeed;
@@ -326,5 +357,6 @@ function moveWeapons() {
                 weapons.splice(i, 1)
             }
     }
+}
 }
 }
