@@ -1,30 +1,34 @@
+let canvasWidth = 640;
+let canvasHeight = 480;
 let score = 0;
 let health = 1000;
 let bgColor = "cyan";
 let player;
 let playerX = 10;
 let playerY = 100;
-let playerSpeed = 5;
-let itemSpeed = 2;
+let playerSpeed = 3;
+let itemSpeed = 4;
 let fishes = [];
 let fishX;
 let fishY;
 let items = [];
-let itemX = 0
-let itemY = 0
+let itemX = 0;
+let itemY = 0;
 let weapons = [];
-let weaponX = 0
+let weaponX = 0;
 let weaponY = 0;
-let fishWidth = 50
+let fishWidth = 50;
 let fishHeight = 50;
 let itemWidth = 75;
 let itemHeight = 75;
-let weaponWidth = 25;
-let weaponHeight = 25;
+let weaponWidth = 50;
+let weaponHeight = 50;
 let weaponSpeed = 2
 let randItemImage;
 let randFishImage;
 let type;
+let menu = 0;
+let paused;
 
 function preload() {
     playerImg = loadImage('images/player/player.gif');
@@ -75,8 +79,8 @@ function preload() {
     ]
 }
 
-function incrementScore(type) {
-    score += type;
+function incrementScore(num) {
+    score += num;
     return score;
 }
 
@@ -84,8 +88,8 @@ function spawnPlayer() {
     image(playerImg, playerX, playerY, 20, 20);
 }
 
-function damageHealth() {
-    health -= 1;
+function damageHealth(num) {
+    health -= num;
     if (health <= 0) {
         bgColor = "black";
         fill("red");
@@ -108,34 +112,57 @@ function movePlayer() {
     if(keyIsDown(RIGHT_ARROW)) {
         playerX += playerSpeed;
     }
-    if(dist([playerX, playerY, items.itemX, items.itemY]) <= 50) {
-        console.log("jogn")
-    }
 }
 
 function setup() {
-    createCanvas(640, 480);
-    frameRate(60);
-    /* setInterval(incrementScore, 10); */
-    setInterval(spawnItems, 100);
+    createCanvas(canvasWidth, canvasHeight);
+    frameRate(120);
+    setInterval(spawnItems, 500);
     setInterval(spawnFish, 7000);
-    setInterval(spawnWeapons, 500);
-    /* setInterval(damageHealth, 120) */
+    setInterval(spawnWeapons, 200);
 }
 
 function draw() {
+    if(menu == 0) {
+        background("cyan")
+        if(keyIsDown(ENTER)) {
+            menu = 1
+            fill("black")
+        }
+    }
+    if(menu == 1) {
+        score += 1
     background(bgImg);
     textSize(12);
     fill("white")
     stroke(1)
-    text(`Score: ${score}`, 10, 20);
+    text(`Score: ${score.toFixed(0)}`, 10, 20);
+    if(health > 0) {
     text(`Health: ${health}`, 10, 40);
+    }
     spawnPlayer();
     movePlayer();
     moveItems()
     moveFishes();
     moveWeapons();
-};
+    if(keyIsDown(ESCAPE)) {
+        menu = 2
+        }
+    }
+    if(menu == 2) {
+        background(0, 1)
+        fill("white")
+        text("Game is paused", 10, 60)
+        
+    }
+}
+
+function keyPressed(event) {
+    if ((event.key === 'l' || event.key === 'L') && menu !== 0) 
+        menu = 2;
+    if (keyCode === ENTER) 
+        menu = 1;
+}
 
 function spawnItems() {
     let item = {
@@ -175,7 +202,7 @@ function moveFishes() {
 }
 
 function moveItems() {
-    for (let i = 0; i < items.length; i++) {
+    for (let i = items.length - 1; i >= 0; i--) {
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
         items[i].itemX -= itemSpeed;
         if(playerX < items[i].itemX + itemWidth && playerX > items[i].itemX - itemWidth && playerY < items[i].itemY + itemHeight && playerY > items[i].itemY - itemHeight) {
@@ -257,37 +284,46 @@ function moveItems() {
 }
 
 function moveWeapons() {
-    for (let i = 0; i < weapons.length; i++) {
+    for (let i = weapons.length - 1; i >= 0; i--) {
         image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
         weapons[i].weaponX -= weaponSpeed;
         if(playerX < weapons[i].weaponX + weaponWidth && playerX > weapons[i].weaponX - weaponWidth && playerY < weapons[i].weaponY + weaponHeight && playerY > weapons[i].weaponY - weaponHeight) {
-            if(items[i].img == itemImages[0]) { // Cutlass
-                damageHealth(10)
-                items.splice(i, 1)
+            if(weapons[i].img == weaponImages[0]) { // Cutlass
+                damageHealth(100)
+                incrementScore(-1000)
+                weapons.splice(i, 1)
             }
-            if(items[i].img == itemImages[0]) { // Dagger
-                damageHealth(8)
-                items.splice(i, 1)
+            if(weapons[i].img == weaponImages[1]) { // Dagger
+                damageHealth(80)
+                incrementScore(-800)
+                weapons.splice(i, 1)
             }
-            if(items[i].img == itemImages[0]) { // Knife
-                damageHealth(15)
-                items.splice(i, 1)
+            if(weapons[i].img == weaponImages[2]) { // Knife
+                damageHealth(150)
+                incrementScore(-1500)
+                weapons.splice(i, 1)
             }
-            if(items[i].img == itemImages[0]) { // Mace
+            if(weapons[i].img == weaponImages[3]) { // Mace
+                damageHealth(500)
+                incrementScore(-5000)
+                weapons.splice(i, 1)
+            }
+            if(weapons[i].img == weaponImages[4]) { // Machete
+                damageHealth(200)
+                incrementScore(-2500)
+                weapons.splice(i, 1)
+            }
+            if(weapons[i].img == weaponImages[5]) { // Pipe
                 damageHealth(50)
-                items.splice(i, 1)
+                incrementScore(score / 3)
+                Math.round(score)
+                weapons.splice(i, 1)
             }
-            if(items[i].img == itemImages[0]) { // Machete
-                damageHealth(20)
-                items.splice(i, 1)
-            }
-            if(items[i].img == itemImages[0]) { // Pipe
-                damageHealth(5)
-                items.splice(i, 1)
-            }
-            if(items[i].img == itemImages[0]) { // Spear
-                damageHealth(12)
-                items.splice(i, 1)
+            if(weapons[i].img == weaponImages[6]) { // Spear
+                damageHealth(120)
+                incrementScore(score / 2)
+                Math.round(score)
+                weapons.splice(i, 1)
             }
     }
 }
