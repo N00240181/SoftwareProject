@@ -22,7 +22,8 @@ let weapons = [];
 let weaponSpawnRate = 700;
 let weaponX = 0;
 let weaponY = 0;
-let gold = 0;
+let gold = 6000;
+let jetpackOwned = 0
 let fishWidth = 50;
 let fishHeight = 50;
 let itemWidth = 75;
@@ -139,7 +140,8 @@ function setup() {
 }
 
 function draw() {
-    if(menu == 0 || health <= 0) {
+    if(menu == 0) {
+        frameRate(60)
         background("cyan")
         textSize(18)
         text(`Gold: ${gold}`, 20, 20)
@@ -151,7 +153,7 @@ function draw() {
         }
     }
     if(menu == 1) {
-        score += 1
+    score += 1
     background(bgImg);
     textSize(12);
     fill("white")
@@ -160,6 +162,7 @@ function draw() {
     if(health > 0) {
     text(`Health: ${health}`, 10, 40);
     }
+    text(`Speed: ${playerSpeed}`, 10, 60)
     spawnPlayer();
     movePlayer();
     moveItems()
@@ -167,29 +170,40 @@ function draw() {
     moveWeapons();
     if(keyIsDown(ESCAPE)) {
         menu = 2
-        itemSpawnRate += 1000
         }
     }
     if(menu == 2) {
         background(0, 1)
         fill("white")
-        text("Game is paused", 10, 60)
+        text("Game is paused", 10, 80)
     }
     if(menu == 3) {
+        frameRate(5)
         textSize(24)
         background("grey")
         text("Shop", 20, 40)
-        text("Jetpack: 200 gold", 20, 120)
+        text(gold, 20, 80)
+        text(`Jetpack: 200 gold - ${jetpackOwned} owned`, 20, 120)
+        if(keyCode === ESCAPE) {
+            menu = 0
+        }
+        if (keyIsPressed && key === "j" && gold >= 200) {
+            playerSpeed += 0.2;
+            jetpackOwned += 1
+            gold -= 200;
+        }
     }
 }
 
 function keyPressed(event) {
-    if ((event.key === 'l' || event.key === 'L') && menu !== 0) 
+    if ((event.key === 'l' || event.key === 'L') && (menu !== 0 || menu !== 3)) 
         menu = 2;
     if ((event.key === 'p' || event.key === 'P') && menu == 0) 
         menu = 3;
-    if (keyCode === ENTER) 
-        menu = 1;
+    if ((event.key === 'q' || event.key === 'Q') && menu == 2) 
+        menu = 0;
+    if (keyCode === ENTER)
+        menu = 1
 }
 
 function spawnItems() {
@@ -221,6 +235,9 @@ function spawnFish() {
 
 function moveFishes() {
     for (let i = 0; i < fishes.length; i++) {
+        if(fishes[i].fishX < 0) {
+            fishes.splice(i, 1)
+        }
         image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
         fishes[i].fishX -= 1
         /* if(playerX == fishes[i].fishX && playerY == fishes[i].fishY) {
