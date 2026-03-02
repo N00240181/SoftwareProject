@@ -134,6 +134,10 @@ function reset() {
 function setup() {
     createCanvas(canvasWidth, canvasHeight);
     frameRate(60);
+    startSpawning()
+}
+
+function startSpawning() {
     itemInterval = setInterval(spawnItems, itemSpawnRate);
     fishInterval = setInterval(spawnFish, 7000);
     weaponInterval = setInterval(spawnWeapons, weaponSpawnRate);
@@ -193,6 +197,10 @@ function draw() {
             jetpackOwned += 1
             gold -= 200;
         }
+        if (keyIsPressed && key === "a" && gold >= 200) {
+            itemSpawnRate -= 499
+            gold -= 200;
+        }
     }
 }
 
@@ -236,7 +244,7 @@ function spawnFish() {
 
 function moveFishes() {
     for (let i = 0; i < fishes.length; i++) {
-        if(fishes[i].fishX < 0) {
+        if(fishes[i].fishX < -50) {
             fishes.splice(i, 1)
         }
         image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
@@ -249,7 +257,7 @@ function moveFishes() {
 
 function moveItems() {
     for (let i = items.length - 1; i >= 0; i--) {
-        if(items[i].itemX < 0) {
+        if(items[i].itemX < -50) {
             items.splice(i, 1)
         }
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
@@ -334,7 +342,7 @@ function moveItems() {
 
 function moveWeapons() {
     for (let i = weapons.length - 1; i >= 0; i--) {
-        if(weapons[i].weaponX < 0) {
+        if(weapons[i].weaponX < -50) {
             weapons.splice(i, 1)
         }
         image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
