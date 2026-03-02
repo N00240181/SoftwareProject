@@ -38,7 +38,7 @@ let menu = 0;
 let paused;
 
 function preload() {
-    playerImg = loadImage('images/player/player.gif');
+    playerImg = loadImage('images/player/player.png');
     bgImg = loadImage('/images/background/background.png')
     itemImages = [
         loadImage('/images/bags/blackbag.png'),
@@ -92,7 +92,7 @@ function incrementScore(num) {
 }
 
 function spawnPlayer() {
-    image(playerImg, playerX, playerY, 20, 20);
+    image(playerImg, playerX, playerY, 60, 50);
 }
 
 function damageHealth(num) {
@@ -153,6 +153,7 @@ function draw() {
         }
     }
     if(menu == 1) {
+    frameRate(60)
     score += 1
     background(bgImg);
     textSize(12);
