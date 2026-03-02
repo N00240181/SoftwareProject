@@ -37,6 +37,7 @@ let randFishImage;
 let type;
 let menu = 0;
 let paused;
+let once = false
 
 function preload() {
     playerImg = loadImage('images/player/player.png');
@@ -99,9 +100,9 @@ function spawnPlayer() {
 function damageHealth(num) {
     health -= num;
     if (health <= 0) {
-        reset()
-        text("Finished", 10, 80);
-        gold += score / 100
+        weapons = [];
+        text("Finished", 10, 540);
+        gold += Math.round(score / 100)
         if(score > highScore) {
             highScore = score
         }
@@ -131,6 +132,9 @@ function reset() {
     items = [];
     weapons = [];
     fishes = [];
+    clearInterval(itemInterval)
+    clearInterval(fishInterval)
+    clearInterval(weaponInterval)
 }
 
 function setup() {
@@ -153,11 +157,6 @@ function draw() {
         text(`High Score: ${highScore}`, 20, 40)
         textSize(42)
         text("Trash Game", 200, 100)
-        if(keyIsDown(ENTER)) {
-            reset()
-            menu = 1
-            startSpawning()
-        }
     }
     if(menu == 1) {
     frameRate(60)
@@ -167,9 +166,7 @@ function draw() {
     fill("white")
     stroke(1)
     text(`Score: ${score.toFixed(0)}`, 10, 20);
-    if(health > 0) {
     text(`Health: ${health}`, 10, 40);
-    }
     text(`Speed: ${playerSpeed}`, 10, 60)
     text(`Trash Spawn Rate: ${itemSpawnRate / 1000} seconds`, 10, 80)
     spawnPlayer();
@@ -218,8 +215,12 @@ function keyPressed(event) {
         menu = 3;
     if ((event.key === 'q' || event.key === 'Q') && menu == 2) 
         menu = 0;
-    if (keyCode === ENTER)
+    if (keyCode === ENTER && menu == 0)
         menu = 1
+        if(!once) {
+            startSpawning()
+            once = true
+        }
 }
 
 function spawnItems() {
@@ -264,8 +265,10 @@ function moveFishes() {
 
 function moveItems() {
     for (let i = items.length - 1; i >= 0; i--) {
-        if(items[i].itemX < -50) {
+        if (!items[i]) continue;
+        if(items[i].itemX < -500) {
             items.splice(i, 1)
+            continue;
         }
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
         items[i].itemX -= itemSpeed;
@@ -273,75 +276,92 @@ function moveItems() {
             if(items[i].img == itemImages[0]) { // Black Bag
                 incrementScore(50)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[1]) { // Brown Bag
                 incrementScore(30)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[2]) { // Food Bag
                 incrementScore(100)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[3]) { // Paper Bag
                 incrementScore(50)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[4]) { // Small Bag
                 incrementScore(20)
                 items.splice(i, 1)
+                continue;
             }
 
             if(items[i].img == itemImages[5]) { // Blue Balloon
                 incrementScore(200)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[6]) { // Green Balloon
                 incrementScore(150)
                 items.splice(i, 1)
+                continue;
             }
 
             if(items[i].img == itemImages[7]) { // Bottle
                 incrementScore(200)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[8]) { // Crushed Bottle
                 incrementScore(125)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[9]) { // Piss Bottle
                 incrementScore(75)
                 items.splice(i, 1)
+                continue;
             }
 
             if(items[i].img == itemImages[10]) { // Hook
                 incrementScore(300)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[11]) { // Net
                 incrementScore(500)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[12]) { // Rod
                 incrementScore(200)
                 items.splice(i, 1)
+                continue;
             }
 
             if(items[i].img == itemImages[13]) { // Brown Glass
                 incrementScore(125)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[14]) { // White Glass
                 incrementScore(50)
                 items.splice(i, 1)
+                continue;
             }
 
             if(items[i].img == itemImages[15]) { // Closed Box
                 incrementScore(45)
                 items.splice(i, 1)
+                continue;
             }
             if(items[i].img == itemImages[16]) { // Kelpo
                 incrementScore(65)
                 items.splice(i, 1)
+                continue;
             }
         }
     }
@@ -349,8 +369,11 @@ function moveItems() {
 
 function moveWeapons() {
     for (let i = weapons.length - 1; i >= 0; i--) {
-        if(weapons[i].weaponX < -50) {
+        if (!weapons[i]) continue;
+        if(weapons[i].weaponX < -500) {
+            
             weapons.splice(i, 1)
+            continue;
         }
         image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
         weapons[i].weaponX -= weaponSpeed;
@@ -359,38 +382,45 @@ function moveWeapons() {
                 damageHealth(100)
                 incrementScore(-1000)
                 weapons.splice(i, 1)
+                continue;
             }
             if(weapons[i].img == weaponImages[1]) { // Dagger
                 damageHealth(80)
                 incrementScore(-800)
                 weapons.splice(i, 1)
+                continue;
             }
             if(weapons[i].img == weaponImages[2]) { // Knife
                 damageHealth(150)
                 incrementScore(-1500)
                 weapons.splice(i, 1)
+                continue;
             }
             if(weapons[i].img == weaponImages[3]) { // Mace
                 damageHealth(500)
                 incrementScore(-5000)
                 weapons.splice(i, 1)
+                continue;
             }
             if(weapons[i].img == weaponImages[4]) { // Machete
                 damageHealth(200)
                 incrementScore(-2500)
                 weapons.splice(i, 1)
+                continue;
             }
             if(weapons[i].img == weaponImages[5]) { // Pipe
                 damageHealth(50)
                 incrementScore(score / 3)
-                Math.round(score)
+                score = Math.round(score)
                 weapons.splice(i, 1)
+                continue;
             }
             if(weapons[i].img == weaponImages[6]) { // Spear
                 damageHealth(120)
                 incrementScore(score / 2)
-                Math.round(score)
+                score = Math.round(score)
                 weapons.splice(i, 1)
+                continue;
             }
     }
 }
