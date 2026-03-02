@@ -1,5 +1,12 @@
 let canvasWidth = 640;
 let canvasHeight = 480;
+
+saveData = {}
+    saveData.highScore = 0;
+    saveData.gold = 100;
+    saveData.jetpackOwned = 0;
+    saveData.itemSpawnRate = 500;
+
 let itemInterval;
 let weaponInterval;
 let fishInterval;
@@ -16,15 +23,15 @@ let fishes = [];
 let fishX;
 let fishY;
 let items = [];
-let itemSpawnRate = 500;
+let itemSpawnRate = saveData.itemSpawnRate;
 let itemX = 0;
 let itemY = 0;
 let weapons = [];
 let weaponSpawnRate = 700;
 let weaponX = 0;
 let weaponY = 0;
-let gold = 1000000;
-let jetpackOwned = 0
+let gold = saveData.gold;
+let jetpackOwned = saveData.jetpackOwned
 let fishWidth = 50;
 let fishHeight = 50;
 let itemWidth = 75;
@@ -36,10 +43,12 @@ let randItemImage;
 let randFishImage;
 let type;
 let menu = 0;
+let goldAdded = 0;
+let once = false;
 let paused;
-let once = false
 
 function preload() {
+    saveFile = ('data/savefile.json')
     playerImg = loadImage('images/player/player.png');
     bgImg = loadImage('/images/background/background.png')
     itemImages = [
@@ -102,7 +111,8 @@ function damageHealth(num) {
     if (health <= 0) {
         weapons = [];
         text("Finished", 10, 540);
-        gold += Math.round(score / 100)
+        goldAdded = Math.round(score / 100)
+        gold += goldAdded
         if(score > highScore) {
             highScore = score
         }
@@ -143,7 +153,7 @@ function setup() {
 }
 
 function startSpawning() {
-    itemInterval = setInterval(spawnItems, itemSpawnRate);
+    itemInterval = setInterval(spawnItems, saveData.itemSpawnRate);
     fishInterval = setInterval(spawnFish, 7000);
     weaponInterval = setInterval(spawnWeapons, weaponSpawnRate);
 }
@@ -153,14 +163,21 @@ function draw() {
         frameRate(60)
         background("cyan")
         textSize(18)
-        text(`Gold: ${gold}`, 20, 20)
+        if(goldAdded == 0) {
+            text(`Gold: ${gold}`, 20, 20)
+        }
+        else {
+            text(`Gold: ${gold} + ${goldAdded}!`, 20, 20)
+        }
         text(`High Score: ${highScore}`, 20, 40)
         textSize(42)
         text("Trash Game", 200, 100)
+        text("Press S to Save!", 200, 200)
     }
     if(menu == 1) {
     frameRate(60)
     score += 1
+    goldAdded = 0
     background(bgImg);
     textSize(12);
     fill("white")
@@ -192,6 +209,7 @@ function draw() {
         text(`Jetpack: 200 gold - ${jetpackOwned} owned`, 20, 120)
         text(`Trash Spawn Rate: 200 gold - ${itemSpawnRate / 1000} seconds`, 20, 240)
         if(keyCode === ESCAPE) {
+            goldAdded = 0
             menu = 0
             reset()
             startSpawning()
@@ -221,6 +239,8 @@ function keyPressed(event) {
             startSpawning()
             once = true
         }
+    if ((event.key === 's' || event.key === 'S') && menu == 0) 
+        save(saveData, saveFile)
 }
 
 function spawnItems() {
