@@ -1,12 +1,11 @@
 let canvasWidth = 640;
 let canvasHeight = 480;
 
-saveData = {}
-    saveData.highScore = 0;
-    saveData.gold = 100;
-    saveData.jetpackOwned = 0;
-    saveData.itemSpawnRate = 500;
-
+    saveData = {}
+        saveData.highScore = 0;
+        saveData.gold = 100;
+        saveData.jetpackOwned = 0;
+        saveData.itemSpawnRate = 500;
 let itemInterval;
 let weaponInterval;
 let fishInterval;
@@ -48,7 +47,7 @@ let once = false;
 let paused;
 
 function preload() {
-    saveFile = ('data/savefile.json')
+    saveData = loadJSON('/data/savefile.json')
     playerImg = loadImage('images/player/player.png');
     bgImg = loadImage('/images/background/background.png')
     itemImages = [
@@ -147,9 +146,21 @@ function reset() {
     clearInterval(weaponInterval)
 }
 
+function handleFile() {
+    if (file.subtype === 'json') {
+        let loadData = JSON.parse(file.data);
+        saveData = loadData
+        highScore = saveData.highScore;
+        gold = saveData.gold;
+        jetpackOwned = saveData.jetpackOwned;
+        itemSpawnRate = saveData.itemSpawnRate;
+    }
+}
+
 function setup() {
     createCanvas(canvasWidth, canvasHeight);
     frameRate(60);
+    input = createFileInput(handleFile);
 }
 
 function startSpawning() {
@@ -164,15 +175,17 @@ function draw() {
         background("cyan")
         textSize(18)
         if(goldAdded == 0) {
-            text(`Gold: ${gold}`, 20, 20)
+            text(`Gold: ${gold}`, 20, 40)
         }
         else {
-            text(`Gold: ${gold} + ${goldAdded}!`, 20, 20)
+            text(`Gold: ${gold} + ${goldAdded}!`, 20, 40)
         }
-        text(`High Score: ${highScore}`, 20, 40)
+        text(`High Score: ${highScore}`, 20, 60)
         textSize(42)
         text("Trash Game", 200, 100)
         text("Press S to Save!", 200, 200)
+
+        input.position(20, 440);
     }
     if(menu == 1) {
     frameRate(60)
@@ -239,8 +252,12 @@ function keyPressed(event) {
             startSpawning()
             once = true
         }
-    if ((event.key === 's' || event.key === 'S') && menu == 0) 
-        save(saveData, saveFile)
+    if ((event.key === 's' || event.key === 'S') && menu == 0)
+        saveData.highScore = highScore;
+        saveData.gold = gold;
+        saveData.jetpackOwned = jetpackOwned;
+        saveData.itemSpawnRate = itemSpawnRate 
+        save(saveData, '/data/savefile.json')
 }
 
 function spawnItems() {
