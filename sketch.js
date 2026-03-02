@@ -4,6 +4,7 @@ let itemInterval;
 let weaponInterval;
 let fishInterval;
 let score = 0;
+let highScore = 0;
 let health = 1000;
 let bgColor = "cyan";
 let player;
@@ -22,7 +23,7 @@ let weapons = [];
 let weaponSpawnRate = 700;
 let weaponX = 0;
 let weaponY = 0;
-let gold = 6000;
+let gold = 1000000;
 let jetpackOwned = 0
 let fishWidth = 50;
 let fishHeight = 50;
@@ -100,7 +101,11 @@ function damageHealth(num) {
     if (health <= 0) {
         reset()
         text("Finished", 10, 80);
-        gold = score / 100
+        gold += score / 100
+        if(score > highScore) {
+            highScore = score
+        }
+        reset()
         menu = 0
     }
 }
@@ -126,15 +131,11 @@ function reset() {
     items = [];
     weapons = [];
     fishes = [];
-    clearInterval(itemInterval);
-    clearInterval(fishInterval);
-    clearInterval(weaponInterval);
 }
 
 function setup() {
     createCanvas(canvasWidth, canvasHeight);
     frameRate(60);
-    startSpawning()
 }
 
 function startSpawning() {
@@ -149,11 +150,13 @@ function draw() {
         background("cyan")
         textSize(18)
         text(`Gold: ${gold}`, 20, 20)
+        text(`High Score: ${highScore}`, 20, 40)
         textSize(42)
         text("Trash Game", 200, 100)
         if(keyIsDown(ENTER)) {
             reset()
             menu = 1
+            startSpawning()
         }
     }
     if(menu == 1) {
@@ -168,6 +171,7 @@ function draw() {
     text(`Health: ${health}`, 10, 40);
     }
     text(`Speed: ${playerSpeed}`, 10, 60)
+    text(`Trash Spawn Rate: ${itemSpawnRate / 1000} seconds`, 10, 80)
     spawnPlayer();
     movePlayer();
     moveItems()
@@ -180,7 +184,7 @@ function draw() {
     if(menu == 2) {
         background(0, 1)
         fill("white")
-        text("Game is paused", 10, 80)
+        text("Game is paused", 540, 20)
     }
     if(menu == 3) {
         frameRate(5)
@@ -189,16 +193,19 @@ function draw() {
         text("Shop", 20, 40)
         text(gold, 20, 80)
         text(`Jetpack: 200 gold - ${jetpackOwned} owned`, 20, 120)
+        text(`Trash Spawn Rate: 200 gold - ${itemSpawnRate / 1000} seconds`, 20, 240)
         if(keyCode === ESCAPE) {
             menu = 0
+            reset()
+            startSpawning()
         }
         if (keyIsPressed && key === "j" && gold >= 200) {
             playerSpeed += 0.2;
             jetpackOwned += 1
             gold -= 200;
         }
-        if (keyIsPressed && key === "a" && gold >= 200) {
-            itemSpawnRate -= 499
+        if (keyIsPressed && key === "a" && gold >= 200 && itemSpawnRate > 100) {
+            itemSpawnRate -= 10
             gold -= 200;
         }
     }
