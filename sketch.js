@@ -6,9 +6,9 @@ let canvasHeight = 480;
 let score = 0;
 let highScore = 0;
 let health = 1000;
-let jetpackOwned;
+let jetpackOwned = 0;
 let jetpackSpeed = 0;
-let itemSpawnRate;
+let itemSpawnRate = 800;
 
 // Spawning, Movement, etc.
 let itemInterval;
@@ -131,7 +131,12 @@ function damageHealth(num) {
     if (health <= 0) {
         weapons = [];
         text("Finished", 10, 540);
+        if(difficulty !== 3 && score > 0) {
         goldAdded = Math.round(score / 100)
+        }
+        else {
+            goldAdded = Math.round(score / 100)
+        }
         gold += goldAdded
         if(score > highScore) {
             highScore = score
@@ -236,7 +241,7 @@ function setup() {
 function startSpawning() {
     itemInterval = setInterval(spawnItems, saveData.itemSpawnRate);
     fishInterval = setInterval(spawnFish, 7000);
-    weaponInterval = setInterval(spawnWeapons, weaponSpawnRate);
+    weaponInterval = setInterval(spawnWeapons, saveData.weaponSpawnRate);
 }
 
 function draw() {
@@ -312,6 +317,8 @@ function draw() {
         if (keyIsPressed && key === "a" && gold >= 200 && itemSpawnRate > 100) {
             itemSpawnRate -= 10
             gold -= 200;
+            clearInterval(itemInterval)
+            itemInterval = setInterval(spawnItems, itemSpawnRate)
         }
     }
 
@@ -332,6 +339,7 @@ function keyPressed(event) {
         menu = 2;
     if ((event.key === 'q' || event.key === 'Q') && (menu == 2 || menu == 4))
         menu = 0;
+        stroke('black')
         settingsBtn.show()
         shopBtn.show()
         difficultyBtn.hide()
@@ -339,6 +347,7 @@ function keyPressed(event) {
         menu = 1
         shopBtn.hide()
         settingsBtn.hide()
+
         if(!once) {
             startSpawning()
             once = true
@@ -388,7 +397,7 @@ function increaseDifficulty() {
 }
 
 function changeDifficulty() {
-    if (difficulty = 0) {
+    if (difficulty == 0) {
         health = 1000
         playerSpeed = 3 + jetpackSpeed
         weaponSpeed = 2
@@ -408,7 +417,7 @@ function changeDifficulty() {
         saveData.hitboxesEnabled = hitboxesEnabled;
         saveData.difficulty = difficulty;
     }
-    if (difficulty = 1) {
+    if (difficulty == 1) {
         health = 500;
         playerSpeed = 2.5 + jetpackSpeed
         weaponSpeed = 2.5
@@ -428,7 +437,7 @@ function changeDifficulty() {
         saveData.hitboxesEnabled = hitboxesEnabled;
         saveData.difficulty = difficulty;
     }
-    if (difficulty = 2) {
+    if (difficulty == 2) {
         health = 250
         playerSpeed = 2.5 + jetpackSpeed
         weaponSpeed = 3
@@ -448,7 +457,7 @@ function changeDifficulty() {
         saveData.hitboxesEnabled = hitboxesEnabled;
         saveData.difficulty = difficulty;
     }
-    if (difficulty = 3) {
+    if (difficulty == 3) {
         health = 1
         playerSpeed = 2 + jetpackSpeed
         weaponSpeed = 3.25
