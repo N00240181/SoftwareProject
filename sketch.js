@@ -7,6 +7,7 @@ let score = 0;
 let highScore = 0;
 let health = 1000;
 let jetpackOwned;
+let jetpackSpeed = 0;
 let itemSpawnRate;
 
 // Spawning, Movement, etc.
@@ -16,8 +17,10 @@ let fishInterval;
 let player;
 let playerX = 10;
 let playerY = 100;
+let playerWidth = 60;
+let playerHeight = 50;
 let playerSpeed = 3;
-let itemSpeed = 4;
+let itemSpeed = 3;
 let fishes = [];
 let fishX;
 let fishY;
@@ -28,7 +31,7 @@ let weapons = [];
 let weaponSpawnRate = 1200;
 let weaponX = 0;
 let weaponY = 0;
-let gold;
+let gold = 200;
 let fishWidth = 50;
 let fishHeight = 50;
 let itemWidth = 75;
@@ -46,8 +49,17 @@ let goldAdded = 0;
 let once = false;
 let paused;
 let saveData;
-let shopX = 20
+let shopBtn;
+let shopX = 30
 let shopY = 100
+let settingsBtn;
+let settingsX = 30
+let settingsY = 120
+let difficultyBtn;
+let difficultyX = 60
+let difficultyY = 120
+let difficulty = 0;
+let hitboxesEnabled = false;
 
 function preload() {
     playerImg = loadImage('images/player/player.png');
@@ -104,7 +116,14 @@ function incrementScore(num) {
 }
 
 function spawnPlayer() {
-    image(playerImg, playerX, playerY, 60, 50);
+    image(playerImg, playerX, playerY, playerWidth, playerHeight);
+    if(hitboxesEnabled) {
+            noFill()
+            stroke('yellow')
+            strokeWeight(2)
+            rect(playerX, playerY, playerWidth, playerHeight)
+            noStroke()
+        }
 }
 
 function damageHealth(num) {
@@ -119,7 +138,20 @@ function damageHealth(num) {
         }
         reset()
         menu = 0
+        settingsBtn.show()
+        shopBtn.show()
     }
+    /* if (health <= 0 && difficulty == 3) {
+        weapons = [];
+        text("Finished", 10, 540);
+        goldAdded = Math.round(score / 25)
+        gold += goldAdded
+        if(score > highScore) {
+            highScore = score
+        }
+        reset()
+        menu = 0
+    } */
 }
 
 function movePlayer() {
@@ -156,23 +188,47 @@ function setup() {
     if(saved) {
         saveData = JSON.parse(saved);
     }
-    else {
+    /* else {
         saveData = {
             highScore: 0,
             gold: 200,
             jetpackOwned: 0,
-            itemSpawnRate: 800
+            itemSpawnRate: 800,
+            playerWidth: 60,
+            playerHeight: 50,
+            weaponSpawnRate: 1200,
+            hitboxesEnabled: false,
+            health: 1000,
+            playerSpeed: 3,
+            itemSpeed: 3,
+            weaponSpeed: 2,
+
         }
-    }
-    highScore = saveData.highScore
-    gold = saveData.gold
-    jetpackOwned = saveData.jetpackOwned
-    itemSpawnRate = saveData.itemSpawnRate
+    } */
+    saveData.highScore = highScore;
+    saveData.gold = gold;
+    saveData.jetpackOwned = jetpackOwned;
+    saveData.itemSpawnRate = itemSpawnRate
+    saveData.weaponSpawnRate = weaponSpawnRate
+    saveData.hitboxesEnabled = hitboxesEnabled;
+    saveData.health = health;
+    saveData.playerSpeed = playerSpeed;
+    saveData.weaponSpeed = weaponSpeed;
+    saveData.itemSpeed = itemSpeed;
+    saveData.playerWidth = playerWidth;
+    saveData.playerHeight = playerHeight;
 
     if(menu == 0) {
-    let shopBtn = createButton('Shop')
+    shopBtn = createButton('Shop')
     shopBtn.position(shopX, shopY)
     shopBtn.mousePressed(shopMenu)
+    settingsBtn = createButton('Settings')
+    settingsBtn.position(settingsX, settingsY)
+    settingsBtn.mousePressed(settingsMenu)
+    difficultyBtn = createButton('Change Difficulty')
+    difficultyBtn.position(difficultyX, difficultyY)
+    difficultyBtn.mousePressed(increaseDifficulty)
+    difficultyBtn.hide()
     }
 }
 
@@ -194,6 +250,7 @@ function draw() {
             text(`Gold: ${gold} + ${goldAdded}!`, 20, 40)
         }
         text(`High Score: ${highScore}`, 20, 60)
+        text(`Difficulty level: ${difficulty}`, 20, 80)
         textSize(42)
         text("Trash Game", 20, 400)
         textSize(14)
@@ -221,14 +278,15 @@ function draw() {
     moveItems()
     moveFishes();
     moveWeapons();
-    if(keyIsDown(ESCAPE)) {
-        menu = 2
-        }
     }
     if(menu == 2) {
         background(0, 1)
         fill("white")
         text("Game is paused", 540, 20)
+    }
+    if(keyCode === ESCAPE && menu == 2) {
+        shopBtn.show()
+        menu = 0
     }
     if(menu == 3) {
         frameRate(5)
@@ -245,7 +303,8 @@ function draw() {
             startSpawning()
         }
         if (keyIsPressed && key === "j" && gold >= 200) {
-            playerSpeed += 0.2;
+            jetpackSpeed += 0.2
+            playerSpeed += jetpackSpeed;
             jetpackOwned += 1
             gold -= 200;
         }
@@ -254,17 +313,31 @@ function draw() {
             gold -= 200;
         }
     }
+
+    if(menu == 4) {
+        frameRate(5)
+        difficultyBtn.show()
+        textSize(18)
+        background('grey')
+        text("Settings", 20, 40)
+        text("Press H to enable hitboxes", 20, 80)
+        text(`Currently ${hitboxesEnabled}`, 20, 100)
+        text(`Current difficulty level: ${difficulty}`, 20, 300)
+    }
 }
 
 function keyPressed(event) {
-    if ((event.key === 'l' || event.key === 'L') && (menu !== 0 && menu !== 3)) 
+    if ((event.key === 'p' || event.key === 'P') && menu == 1) 
         menu = 2;
-    if ((event.key === 'p' || event.key === 'P') && menu == 0) 
-        menu = 3;
-    if ((event.key === 'q' || event.key === 'Q') && menu == 2) 
+    if ((event.key === 'q' || event.key === 'Q') && (menu == 2 || menu == 4))
         menu = 0;
+        settingsBtn.show()
+        shopBtn.show()
+        difficultyBtn.hide()
     if (keyCode === ENTER && menu == 0)
         menu = 1
+        shopBtn.hide()
+        settingsBtn.hide()
         if(!once) {
             startSpawning()
             once = true
@@ -273,15 +346,131 @@ function keyPressed(event) {
         saveData.highScore = highScore;
         saveData.gold = gold;
         saveData.jetpackOwned = jetpackOwned;
-        saveData.itemSpawnRate = itemSpawnRate 
+        saveData.itemSpawnRate = itemSpawnRate
+        saveData.weaponSpawnRate = weaponSpawnRate
+        saveData.hitboxesEnabled = hitboxesEnabled;
+        saveData.health = health;
+        saveData.playerSpeed = playerSpeed;
+        saveData.weaponSpeed = weaponSpeed;
+        saveData.itemSpeed = itemSpeed;
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+        settingsBtn.show()
+        shopBtn.show()
         
         localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    }
+    if ((event.key === 'h' || event.key === 'H' && menu == 4)) {
+        hitboxesEnabled = true;
     }
 }
 
 function shopMenu() {
     menu = 3;
-    shopBtn.remove()
+    shopBtn.hide()
+    settingsBtn.hide()
+}
+
+function settingsMenu() {
+    menu = 4;
+    shopBtn.hide()
+    settingsBtn.hide()
+}
+
+function increaseDifficulty() {
+    if(difficulty < 3) {
+        difficulty++;
+        changeDifficulty()
+        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    }
+    if (difficulty >= 3) {
+        difficulty = 0;
+        changeDifficulty()
+        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    }
+}
+
+function changeDifficulty() {
+    if (difficulty = 0) {
+        health = 1000
+        playerSpeed = 3 + jetpackSpeed
+        weaponSpeed = 2
+        weaponSpawnRate = 1200
+        itemSpeed = 2
+        itemSpawnRate = 800
+        playerWidth = 60
+        playerHeight = 50
+        saveData.health = health;
+        saveData.playerSpeed = playerSpeed;
+        saveData.weaponSpeed = weaponSpeed;
+        saveData.itemSpeed = itemSpeed;
+        saveData.itemSpawnRate = itemSpawnRate;
+        saveData.weaponSpawnRate = weaponSpawnRate
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+        saveData.hitboxesEnabled = hitboxesEnabled;
+        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    }
+    if (difficulty = 1) {
+        health = 500;
+        playerSpeed = 2.5 + jetpackSpeed
+        weaponSpeed = 2.5
+        weaponSpawnRate = 1100
+        itemSpeed = 3
+        itemSpawnRate = 750
+        playerWidth = 60
+        playerHeight = 50
+        saveData.health = health;
+        saveData.playerSpeed = playerSpeed;
+        saveData.weaponSpeed = weaponSpeed;
+        saveData.itemSpeed = itemSpeed;
+        saveData.itemSpawnRate = itemSpawnRate;
+        saveData.weaponSpawnRate = weaponSpawnRate
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+        saveData.hitboxesEnabled = hitboxesEnabled;
+        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    }
+    if (difficulty = 2) {
+        health = 250
+        playerSpeed = 2.5 + jetpackSpeed
+        weaponSpeed = 3
+        weaponSpawnRate = 1000
+        itemSpeed = 4
+        itemSpawnRate = 700
+        playerWidth = 50
+        playerHeight = 45
+        saveData.health = health;
+        saveData.playerSpeed = playerSpeed;
+        saveData.weaponSpeed = weaponSpeed;
+        saveData.itemSpeed = itemSpeed;
+        saveData.itemSpawnRate = itemSpawnRate;
+        saveData.weaponSpawnRate = weaponSpawnRate
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+        saveData.hitboxesEnabled = hitboxesEnabled;
+        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    }
+    if (difficulty = 3) {
+        health = 1
+        playerSpeed = 2 + jetpackSpeed
+        weaponSpeed = 3.25
+        weaponSpawnRate = 950
+        itemSpeed = 4
+        itemSpawnRate = 600
+        playerWidth = 40
+        playerHeight = 40
+        saveData.health = health;
+        saveData.playerSpeed = playerSpeed;
+        saveData.weaponSpeed = weaponSpeed;
+        saveData.itemSpeed = itemSpeed;
+        saveData.itemSpawnRate = itemSpawnRate;
+        saveData.weaponSpawnRate = weaponSpawnRate
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+        saveData.hitboxesEnabled = hitboxesEnabled;
+        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    }
 }
 
 function spawnItems() {
@@ -330,6 +519,13 @@ function moveItems() {
         if(items[i].itemX < -500) {
             items.splice(i, 1)
             continue;
+        }
+        if(hitboxesEnabled) {
+            noFill()
+            stroke('lime')
+            strokeWeight(2)
+            rect(items[i].itemX, items[i].itemY, itemWidth, itemHeight)
+            noStroke()
         }
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
         items[i].itemX -= itemSpeed;
@@ -435,6 +631,13 @@ function moveWeapons() {
             
             weapons.splice(i, 1)
             continue;
+        }
+        if(hitboxesEnabled) {
+            noFill()
+            stroke('red')
+            strokeWeight(2)
+            rect(weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight)
+            noStroke()
         }
         image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
         weapons[i].weaponX -= weaponSpeed;
