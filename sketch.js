@@ -188,7 +188,7 @@ function setup() {
     if(saved) {
         saveData = JSON.parse(saved);
     }
-    /* else {
+    else {
         saveData = {
             highScore: 0,
             gold: 200,
@@ -202,21 +202,22 @@ function setup() {
             playerSpeed: 3,
             itemSpeed: 3,
             weaponSpeed: 2,
-
+            difficulty: 0
         }
-    } */
-    saveData.highScore = highScore;
-    saveData.gold = gold;
-    saveData.jetpackOwned = jetpackOwned;
-    saveData.itemSpawnRate = itemSpawnRate
-    saveData.weaponSpawnRate = weaponSpawnRate
-    saveData.hitboxesEnabled = hitboxesEnabled;
-    saveData.health = health;
-    saveData.playerSpeed = playerSpeed;
-    saveData.weaponSpeed = weaponSpeed;
-    saveData.itemSpeed = itemSpeed;
-    saveData.playerWidth = playerWidth;
-    saveData.playerHeight = playerHeight;
+    }
+    highScore = saveData.highScore;
+    gold = saveData.gold;
+    jetpackOwned = saveData.jetpackOwned;
+    itemSpawnRate = saveData.itemSpawnRate;
+    weaponSpawnRate = saveData.weaponSpawnRate;
+    hitboxesEnabled = saveData.hitboxesEnabled;
+    health = saveData.health;
+    playerSpeed = saveData.playerSpeed;
+    weaponSpeed = saveData.weaponSpeed;
+    itemSpeed = saveData.itemSpeed;
+    playerWidth = saveData.playerWidth;
+    playerHeight = saveData.playerHeight
+    difficulty = saveData.difficulty
 
     if(menu == 0) {
     shopBtn = createButton('Shop')
@@ -315,7 +316,7 @@ function draw() {
     }
 
     if(menu == 4) {
-        frameRate(5)
+        frameRate(1)
         difficultyBtn.show()
         textSize(18)
         background('grey')
@@ -355,6 +356,7 @@ function keyPressed(event) {
         saveData.itemSpeed = itemSpeed;
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
+        saveData.difficulty = difficulty;
         settingsBtn.show()
         shopBtn.show()
         
@@ -378,16 +380,11 @@ function settingsMenu() {
 }
 
 function increaseDifficulty() {
-    if(difficulty < 3) {
-        difficulty++;
-        changeDifficulty()
-        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    difficulty++
+    if(difficulty > 3) {
+        difficulty = 0
     }
-    if (difficulty >= 3) {
-        difficulty = 0;
-        changeDifficulty()
-        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
-    }
+    localStorage.setItem("trashGameSave", JSON.stringify(saveData))
 }
 
 function changeDifficulty() {
@@ -409,7 +406,7 @@ function changeDifficulty() {
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
-        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+        saveData.difficulty = difficulty;
     }
     if (difficulty = 1) {
         health = 500;
@@ -429,7 +426,7 @@ function changeDifficulty() {
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
-        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+        saveData.difficulty = difficulty;
     }
     if (difficulty = 2) {
         health = 250
@@ -449,7 +446,7 @@ function changeDifficulty() {
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
-        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+        saveData.difficulty = difficulty;
     }
     if (difficulty = 3) {
         health = 1
@@ -469,7 +466,7 @@ function changeDifficulty() {
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
-        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+        saveData.difficulty = difficulty;
     }
 }
 
