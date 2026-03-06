@@ -1,18 +1,18 @@
 let canvasWidth = 640;
 let canvasHeight = 480;
 
-    saveData = {}
-        saveData.highScore = 0;
-        saveData.gold = 100;
-        saveData.jetpackOwned = 0;
-        saveData.itemSpawnRate = 500;
-let itemInterval;
-let weaponInterval;
-let fishInterval;
+// Score, Items, etc.
+
 let score = 0;
 let highScore = 0;
 let health = 1000;
-let bgColor = "cyan";
+let jetpackOwned;
+let itemSpawnRate;
+
+// Spawning, Movement, etc.
+let itemInterval;
+let weaponInterval;
+let fishInterval;
 let player;
 let playerX = 10;
 let playerY = 100;
@@ -22,15 +22,13 @@ let fishes = [];
 let fishX;
 let fishY;
 let items = [];
-let itemSpawnRate = saveData.itemSpawnRate;
 let itemX = 0;
 let itemY = 0;
 let weapons = [];
-let weaponSpawnRate = 700;
+let weaponSpawnRate = 1200;
 let weaponX = 0;
 let weaponY = 0;
-let gold = saveData.gold;
-let jetpackOwned = saveData.jetpackOwned
+let gold;
 let fishWidth = 50;
 let fishHeight = 50;
 let itemWidth = 75;
@@ -41,13 +39,17 @@ let weaponSpeed = 2;
 let randItemImage;
 let randFishImage;
 let type;
+// Menus, etc.
+let bgColor = "cyan";
 let menu = 0;
 let goldAdded = 0;
 let once = false;
 let paused;
+let saveData;
+let shopX = 20
+let shopY = 100
 
 function preload() {
-    saveData = loadJSON('/data/savefile.json')
     playerImg = loadImage('images/player/player.png');
     bgImg = loadImage('/images/background/background.png')
     itemImages = [
@@ -136,8 +138,8 @@ function movePlayer() {
 }
 
 function reset() {
-    playerX = 0
-    playerY = 0
+    playerX = 20
+    playerY = 200
     items = [];
     weapons = [];
     fishes = [];
@@ -146,21 +148,32 @@ function reset() {
     clearInterval(weaponInterval)
 }
 
-function handleFile() {
-    if (file.subtype === 'json') {
-        let loadData = JSON.parse(file.data);
-        saveData = loadData
-        highScore = saveData.highScore;
-        gold = saveData.gold;
-        jetpackOwned = saveData.jetpackOwned;
-        itemSpawnRate = saveData.itemSpawnRate;
-    }
-}
-
 function setup() {
     createCanvas(canvasWidth, canvasHeight);
     frameRate(60);
-    input = createFileInput(handleFile);
+
+    let saved = localStorage.getItem("trashGameSave");
+    if(saved) {
+        saveData = JSON.parse(saved);
+    }
+    else {
+        saveData = {
+            highScore: 0,
+            gold: 200,
+            jetpackOwned: 0,
+            itemSpawnRate: 800
+        }
+    }
+    highScore = saveData.highScore
+    gold = saveData.gold
+    jetpackOwned = saveData.jetpackOwned
+    itemSpawnRate = saveData.itemSpawnRate
+
+    if(menu == 0) {
+    let shopBtn = createButton('Shop')
+    shopBtn.position(shopX, shopY)
+    shopBtn.mousePressed(shopMenu)
+    }
 }
 
 function startSpawning() {
@@ -182,10 +195,13 @@ function draw() {
         }
         text(`High Score: ${highScore}`, 20, 60)
         textSize(42)
-        text("Trash Game", 200, 100)
-        text("Press S to Save!", 200, 200)
-
-        input.position(20, 440);
+        text("Trash Game", 20, 400)
+        textSize(14)
+        text("Press S to Save!", 20, 440)
+        if (keyIsDown && key === "s" || key === "S") {
+            textSize(14)
+            text("Saved!", 130, 440)
+        }
     }
     if(menu == 1) {
     frameRate(60)
@@ -195,6 +211,7 @@ function draw() {
     textSize(12);
     fill("white")
     stroke(1)
+    
     text(`Score: ${score.toFixed(0)}`, 10, 20);
     text(`Health: ${health}`, 10, 40);
     text(`Speed: ${playerSpeed}`, 10, 60)
@@ -240,7 +257,7 @@ function draw() {
 }
 
 function keyPressed(event) {
-    if ((event.key === 'l' || event.key === 'L') && (menu !== 0 || menu !== 3)) 
+    if ((event.key === 'l' || event.key === 'L') && (menu !== 0 && menu !== 3)) 
         menu = 2;
     if ((event.key === 'p' || event.key === 'P') && menu == 0) 
         menu = 3;
@@ -252,12 +269,19 @@ function keyPressed(event) {
             startSpawning()
             once = true
         }
-    if ((event.key === 's' || event.key === 'S') && menu == 0)
+    if ((event.key === 's' || event.key === 'S') && menu == 0) {
         saveData.highScore = highScore;
         saveData.gold = gold;
         saveData.jetpackOwned = jetpackOwned;
         saveData.itemSpawnRate = itemSpawnRate 
-        save(saveData, '/data/savefile.json')
+        
+        localStorage.setItem("trashGameSave", JSON.stringify(saveData))
+    }
+}
+
+function shopMenu() {
+    menu = 3;
+    shopBtn.remove()
 }
 
 function spawnItems() {
