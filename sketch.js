@@ -34,7 +34,6 @@ let fishWidth = 50;
 let fishHeight = 50;
 let fishSpeed = 2;
 let randItemImage;
-let randFishImage;
 let type;
 // Menus, etc.
 let bgColor = "cyan";
@@ -214,6 +213,8 @@ function setup() {
 }
 
 function startSpawning() {
+    clearInterval(itemInterval)
+    clearInterval(fishInterval)
     itemInterval = setInterval(spawnItems, saveData.itemSpawnRate);
     fishInterval = setInterval(spawnFishes, saveData.fishSpawnRate);
 }
@@ -263,6 +264,8 @@ function draw() {
         background(0, 1)
         fill("white")
         text("Game is paused", 540, 20)
+        clearInterval(itemInterval)
+        clearInterval(fishInterval)
     }
     if(menu == 3) {
         frameRate(5)
@@ -319,6 +322,7 @@ function keyPressed(event) {
         menu = 1
         shopBtn.hide()
         settingsBtn.hide()
+        startSpawning()
     }
     if(keyCode === ESCAPE && menu == 2) {
         shopBtn.show()
@@ -492,7 +496,7 @@ function moveItems() {
         }
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
         items[i].itemX -= itemSpeed;
-        if(playerX < items[i].itemX + itemWidth && playerX > items[i].itemX - itemWidth && playerY < items[i].itemY + itemHeight && playerY > items[i].itemY - itemHeight) {
+        if(playerX < items[i].itemX + itemWidth && playerX + playerWidth > items[i].itemX && playerY < items[i].itemY + itemHeight && playerY + playerHeight > items[i].itemY) {
             if(items[i].img == itemImages[0]) { // Black Bag
                 incrementScore(50)
                 items.splice(i, 1)
@@ -618,7 +622,7 @@ function moveFishes() {
         }
         image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
         fishes[i].fishX -= fishSpeed;
-        if(playerX < fishes[i].fishX + fishWidth && playerX > fishes[i].fishX - fishWidth && playerY < fishes[i].fishY + fishHeight && playerY > fishes[i].fishY - fishHeight) {
+        if(playerX < fishes[i].fishX + fishWidth && playerX + playerWidth > fishes[i].fishX && playerY < fishes[i].fishY + fishHeight && playerY + playerHeight > fishes[i].fishY) {
             if(fishes[i].img == fishImages[0]) {
                 damageHealth(100)
                 incrementScore(-1000)
