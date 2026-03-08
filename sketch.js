@@ -115,7 +115,6 @@ function damageHealth(num) {
     health -= num;
     if (health <= 0) {
         fishes = [];
-        text("Finished", 10, 540);
         if(difficulty !== 3 && score > 0) {
         goldAdded = Math.round(score / 100)
         }
@@ -223,6 +222,7 @@ function draw() {
     if(menu == 0) {
         frameRate(60)
         background("cyan")
+        fill("black")
         textSize(18)
         if(goldAdded == 0) {
             text(`Gold: ${gold}`, 20, 40)
@@ -595,6 +595,20 @@ function moveFishes() {
             fishes.splice(i, 1)
             continue;
         }
+        fishWidth = 50
+        fishHeight = 50
+        if(fishes[i].img == fishImages[5]) {
+            fishWidth = fishWidth * 3
+            fishHeight = fishHeight * 3
+        }
+        else if(fishes[i].img == fishImages[6]) {
+            fishWidth = fishWidth * 5
+            fishHeight = fishHeight * 5
+        }
+        else {
+            fishWidth = 50
+            fishHeight = 50
+        }
         if(hitboxesEnabled) {
             noFill()
             stroke('red')
@@ -635,16 +649,16 @@ function moveFishes() {
                 fishes.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[5]) {
-                damageHealth(50)
-                incrementScore(score / 3)
+            if(fishes[i].img == fishImages[5]) { // Shark
+                damageHealth(300)
+                incrementScore(-(score / 6))
                 score = Math.round(score)
                 fishes.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[6]) {
-                damageHealth(120)
-                incrementScore(score / 2)
+            if(fishes[i].img == fishImages[6]) { // Orca
+                damageHealth(500)
+                incrementScore(-(score / 4))
                 score = Math.round(score)
                 fishes.splice(i, 1)
                 continue;
