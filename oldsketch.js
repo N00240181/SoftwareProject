@@ -12,6 +12,7 @@ let itemSpawnRate = 800;
 
 // Spawning, Movement, etc.
 let itemInterval;
+let weaponInterval;
 let fishInterval;
 let player;
 let playerX = 10;
@@ -20,19 +21,24 @@ let playerWidth = 60;
 let playerHeight = 50;
 let playerSpeed = 3;
 let itemSpeed = 3;
+let fishes = [];
+let fishX;
+let fishY;
 let items = [];
 let itemX = 0;
 let itemY = 0;
-let fishes = [];
-let fishSpawnRate = 1200;
-let fishX = 0;
-let fishY = 0;
+let weapons = [];
+let weaponSpawnRate = 1200;
+let weaponX = 0;
+let weaponY = 0;
 let gold = 200;
-let itemWidth = 75;
-let itemHeight = 75;
 let fishWidth = 50;
 let fishHeight = 50;
-let fishSpeed = 2;
+let itemWidth = 75;
+let itemHeight = 75;
+let weaponWidth = 50;
+let weaponHeight = 50;
+let weaponSpeed = 2;
 let randItemImage;
 let randFishImage;
 let type;
@@ -93,6 +99,15 @@ function preload() {
         loadImage('images/fish/fish6.png'),
         loadImage('images/fish/fish7.png')
     ]
+    weaponImages = [
+        loadImage('images/weapons/cutlass.png'),
+        loadImage('images/weapons/dagger.png'),
+        loadImage('images/weapons/knife.png'),
+        loadImage('images/weapons/mace.png'),
+        loadImage('images/weapons/machete.png'),
+        loadImage('images/weapons/pipe.png'),
+        loadImage('images/weapons/spear.png')
+    ]
 }
 
 function incrementScore(num) {
@@ -114,13 +129,13 @@ function spawnPlayer() {
 function damageHealth(num) {
     health -= num;
     if (health <= 0) {
-        fishes = [];
+        weapons = [];
         text("Finished", 10, 540);
         if(difficulty !== 3 && score > 0) {
         goldAdded = Math.round(score / 100)
         }
         else {
-            goldAdded = Math.round(score / 50)
+            goldAdded = Math.round(score / 100)
         }
         gold += goldAdded
         if(score > highScore) {
@@ -131,6 +146,17 @@ function damageHealth(num) {
         shopBtn.show()
         reset()
     }
+    /* if (health <= 0 && difficulty == 3) {
+        weapons = [];
+        text("Finished", 10, 540);
+        goldAdded = Math.round(score / 25)
+        gold += goldAdded
+        if(score > highScore) {
+            highScore = score
+        }
+        reset()
+        menu = 0
+    } */
 }
 
 function movePlayer() {
@@ -156,9 +182,11 @@ function reset() {
     health = saveData.health
     score = 0;
     items = [];
+    weapons = [];
     fishes = [];
     clearInterval(itemInterval)
     clearInterval(fishInterval)
+    clearInterval(weaponInterval)
 }
 
 function setup() {
@@ -177,12 +205,12 @@ function setup() {
             itemSpawnRate: 800,
             playerWidth: 60,
             playerHeight: 50,
-            fishSpawnRate: 1200,
+            weaponSpawnRate: 1200,
             hitboxesEnabled: false,
             health: 1000,
             playerSpeed: 3,
             itemSpeed: 3,
-            fishSpeed: 2,
+            weaponSpeed: 2,
             difficulty: 0
         }
     }
@@ -190,11 +218,11 @@ function setup() {
     gold = saveData.gold;
     jetpackOwned = saveData.jetpackOwned;
     itemSpawnRate = saveData.itemSpawnRate;
-    fishSpawnRate = saveData.fishSpawnRate;
+    weaponSpawnRate = saveData.weaponSpawnRate;
     hitboxesEnabled = saveData.hitboxesEnabled;
     health = saveData.health;
     playerSpeed = saveData.playerSpeed;
-    fishSpeed = saveData.fishSpeed;
+    weaponSpeed = saveData.weaponSpeed;
     itemSpeed = saveData.itemSpeed;
     playerWidth = saveData.playerWidth;
     playerHeight = saveData.playerHeight
@@ -216,7 +244,8 @@ function setup() {
 
 function startSpawning() {
     itemInterval = setInterval(spawnItems, saveData.itemSpawnRate);
-    fishInterval = setInterval(spawnFishes, saveData.fishSpawnRate);
+    fishInterval = setInterval(spawnFish, 7000);
+    weaponInterval = setInterval(spawnWeapons, saveData.weaponSpawnRate);
 }
 
 function draw() {
@@ -258,6 +287,7 @@ function draw() {
     movePlayer();
     moveItems()
     moveFishes();
+    moveWeapons();
     }
     if(menu == 2) {
         background(0, 1)
@@ -334,11 +364,11 @@ function keyPressed(event) {
         saveData.gold = gold;
         saveData.jetpackOwned = jetpackOwned;
         saveData.itemSpawnRate = itemSpawnRate
-        saveData.fishSpawnRate = fishSpawnRate
+        saveData.weaponSpawnRate = weaponSpawnRate
         saveData.hitboxesEnabled = hitboxesEnabled;
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
-        saveData.fishSpeed = fishSpeed;
+        saveData.weaponSpeed = weaponSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
@@ -379,18 +409,18 @@ function changeDifficulty() {
     if (difficulty == 0) {
         health = 1000
         playerSpeed = 3 + jetpackSpeed
-        fishSpeed = 2
-        fishSpawnRate = 1200
+        weaponSpeed = 2
+        weaponSpawnRate = 1200
         itemSpeed = 2
         itemSpawnRate = 800
         playerWidth = 60
         playerHeight = 50
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
-        saveData.fishSpeed = fishSpeed;
+        saveData.weaponSpeed = weaponSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.itemSpawnRate = itemSpawnRate;
-        saveData.fishSpawnRate = fishSpawnRate
+        saveData.weaponSpawnRate = weaponSpawnRate
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
@@ -399,18 +429,18 @@ function changeDifficulty() {
     if (difficulty == 1) {
         health = 500;
         playerSpeed = 2.5 + jetpackSpeed
-        fishSpeed = 2.5
-        fishSpawnRate = 1100
+        weaponSpeed = 2.5
+        weaponSpawnRate = 1100
         itemSpeed = 3
         itemSpawnRate = 750
         playerWidth = 60
         playerHeight = 50
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
-        saveData.fishSpeed = fishSpeed;
+        saveData.weaponSpeed = weaponSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.itemSpawnRate = itemSpawnRate;
-        saveData.fishSpawnRate = fishSpawnRate
+        saveData.weaponSpawnRate = weaponSpawnRate
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
@@ -419,18 +449,18 @@ function changeDifficulty() {
     if (difficulty == 2) {
         health = 250
         playerSpeed = 2.5 + jetpackSpeed
-        fishSpeed = 3
-        fishSpawnRate = 1000
+        weaponSpeed = 3
+        weaponSpawnRate = 1000
         itemSpeed = 4
         itemSpawnRate = 700
         playerWidth = 50
         playerHeight = 45
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
-        saveData.fishSpeed = fishSpeed;
+        saveData.weaponSpeed = weaponSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.itemSpawnRate = itemSpawnRate;
-        saveData.fishSpawnRate = fishSpawnRate
+        saveData.weaponSpawnRate = weaponSpawnRate
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
@@ -439,18 +469,18 @@ function changeDifficulty() {
     if (difficulty == 3) {
         health = 1
         playerSpeed = 2 + jetpackSpeed
-        fishSpeed = 3.25
-        fishSpawnRate = 950
+        weaponSpeed = 3.25
+        weaponSpawnRate = 950
         itemSpeed = 4
         itemSpawnRate = 600
         playerWidth = 40
         playerHeight = 40
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
-        saveData.fishSpeed = fishSpeed;
+        saveData.weaponSpeed = weaponSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.itemSpawnRate = itemSpawnRate;
-        saveData.fishSpawnRate = fishSpawnRate
+        saveData.weaponSpawnRate = weaponSpawnRate
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
@@ -467,13 +497,35 @@ function spawnItems() {
     items.push(item);
 }
 
-function spawnFishes() {
+function spawnWeapons() {
+    let weapon = {
+        weaponX: 690,
+        weaponY: Math.floor(Math.random() * 420),
+        img: weaponImages[Math.floor(random(weaponImages.length))]
+    }
+    weapons.push(weapon);
+}
+
+function spawnFish() {
     let fish = {
         fishX: 690,
         fishY: Math.floor(Math.random() * 420),
         img: fishImages[Math.floor(random(fishImages.length))]
     }
     fishes.push(fish);
+}
+
+function moveFishes() {
+    for (let i = 0; i < fishes.length; i++) {
+        if(fishes[i].fishX < -50) {
+            fishes.splice(i, 1)
+        }
+        image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
+        fishes[i].fishX -= 1
+        /* if(playerX == fishes[i].fishX && playerY == fishes[i].fishY) {
+            damageHealth()
+        } */
+    }
 }
 
 function moveItems() {
@@ -587,66 +639,66 @@ function moveItems() {
     }
 }
 
-function moveFishes() {
-    for (let i = fishes.length - 1; i >= 0; i--) {
-        if (!fishes[i]) continue;
-        if(fishes[i].fishX < -500) {
+function moveWeapons() {
+    for (let i = weapons.length - 1; i >= 0; i--) {
+        if (!weapons[i]) continue;
+        if(weapons[i].weaponX < -500) {
             
-            fishes.splice(i, 1)
+            weapons.splice(i, 1)
             continue;
         }
         if(hitboxesEnabled) {
             noFill()
             stroke('red')
             strokeWeight(2)
-            rect(fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight)
+            rect(weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight)
             noStroke()
         }
-        image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
-        fishes[i].fishX -= fishSpeed;
-        if(playerX < fishes[i].fishX + fishWidth && playerX > fishes[i].fishX - fishWidth && playerY < fishes[i].fishY + fishHeight && playerY > fishes[i].fishY - fishHeight) {
-            if(fishes[i].img == fishImages[0]) {
+        image(weapons[i].img, weapons[i].weaponX, weapons[i].weaponY, weaponWidth, weaponHeight);
+        weapons[i].weaponX -= weaponSpeed;
+        if(playerX < weapons[i].weaponX + weaponWidth && playerX > weapons[i].weaponX - weaponWidth && playerY < weapons[i].weaponY + weaponHeight && playerY > weapons[i].weaponY - weaponHeight) {
+            if(weapons[i].img == weaponImages[0]) { // Cutlass
                 damageHealth(100)
                 incrementScore(-1000)
-                fishes.splice(i, 1)
+                weapons.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[1]) {
+            if(weapons[i].img == weaponImages[1]) { // Dagger
                 damageHealth(80)
                 incrementScore(-800)
-                fishes.splice(i, 1)
+                weapons.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[2]) {
+            if(weapons[i].img == weaponImages[2]) { // Knife
                 damageHealth(150)
                 incrementScore(-1500)
-                fishes.splice(i, 1)
+                weapons.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[3]) {
+            if(weapons[i].img == weaponImages[3]) { // Mace
                 damageHealth(500)
                 incrementScore(-5000)
-                fishes.splice(i, 1)
+                weapons.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[4]) {
+            if(weapons[i].img == weaponImages[4]) { // Machete
                 damageHealth(200)
                 incrementScore(-2500)
-                fishes.splice(i, 1)
+                weapons.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[5]) {
+            if(weapons[i].img == weaponImages[5]) { // Pipe
                 damageHealth(50)
                 incrementScore(score / 3)
                 score = Math.round(score)
-                fishes.splice(i, 1)
+                weapons.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[6]) {
+            if(weapons[i].img == weaponImages[6]) { // Spear
                 damageHealth(120)
                 incrementScore(score / 2)
                 score = Math.round(score)
-                fishes.splice(i, 1)
+                weapons.splice(i, 1)
                 continue;
             }
     }
