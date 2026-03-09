@@ -52,6 +52,11 @@ let difficultyBtn;
 let difficultyX = 60
 let difficultyY = 120
 let difficulty = 0;
+let infoBtn;
+let infoX = 30;
+let infoY = 140;
+let nextInfoBtn;
+let currentInfo = 1;
 let hitboxesEnabled = false;
 
 function preload() {
@@ -127,6 +132,7 @@ function damageHealth(num) {
         menu = 0
         settingsBtn.show()
         shopBtn.show()
+        infoBtn.show()
         reset()
     }
 }
@@ -205,6 +211,13 @@ function setup() {
     settingsBtn = createButton('Settings')
     settingsBtn.position(settingsX, settingsY)
     settingsBtn.mousePressed(settingsMenu)
+    infoBtn = createButton('Information!')
+    infoBtn.position(infoX, infoY)
+    infoBtn.mousePressed(infoMenu)
+    nextInfoBtn = createButton('>')
+    nextInfoBtn.position(width / 2, (height / 2) + 200)
+    nextInfoBtn.mousePressed(nextInfo)
+    nextInfoBtn.hide()
     difficultyBtn = createButton('Change Difficulty')
     difficultyBtn.position(difficultyX, difficultyY)
     difficultyBtn.mousePressed(increaseDifficulty)
@@ -305,27 +318,94 @@ function draw() {
         text(`Currently ${hitboxesEnabled}`, 20, 100)
         text(`Current difficulty level: ${difficulty}`, 20, 300)
     }
+
+    if(menu == 5) {
+        frameRate(60)
+        nextInfoBtn.show()
+        textSize(18)
+        textAlign(CENTER)
+        fill('white')
+        stroke('black')
+        strokeWeight(2)
+        background(bgImg)
+
+        // Fish 1 Tilapia
+        if (currentInfo == 1) {
+            image(fishImages[0], (width / 2) - 50, (height / 2) - 150, 100, 100)
+            text("This is the Tilapia, there are an estimated\n 100 in the world. They can be\n found in Africa and the Middle East,\n and they have been referred to as\n 'Water Chickens' because they reproduce fast and\n are easy to farm.", width / 2, height / 2)
+            text("Damage: 80\n Penality: -800 Score", width / 2, (height / 2) + 150)
+        }
+
+        // Fish 2 Queen Angelfish
+        if (currentInfo == 2) {
+            image(fishImages[1], (width / 2) - 50, (height / 2) - 150, 100, 100)
+            text("This is the Queen Angelfish, and they can be\n found in the Caribbean and the Atlantic Ocean.\n They got their name because the ring on\n their head looks like a crown. They have been\n known to eat sponges which most fish avoid due to bad taste.", width / 2, height / 2)
+            text("Damage: 100\n Penality: -1000 Score", width / 2, (height / 2) + 150)
+        }
+
+        // Fish 3 Squirrelfish
+        if (currentInfo == 3) {
+            image(fishImages[2], (width / 2) - 50, (height / 2) - 150, 100, 100)
+            text("This is the Squirrelfish, and they can be\n found in Atlantic, Pacific and Indian Oceans.\n They have huge eyes that help them see in\n the dark. Their spines are sharp which helps\n protect them from potential predators.", width / 2, height / 2)
+            text("Damage: 150\n Penality: -1500 Score", width / 2, (height / 2) + 150)
+        }
+
+        // Fish 4 Rudd
+        if (currentInfo == 4) {
+            image(fishImages[3], (width / 2) - 50, (height / 2) - 150, 100, 100)
+            text("This is the rudd. They're found in\n Europe and West Asia. They're famous for having bright\n orange fins, and they also eat insects and plants.", width / 2, height / 2)
+            text("Damage: 250\n Penality: -2500 Score", width / 2, (height / 2) + 150)
+        }
+
+        // Fish 5 Goldfish
+        if (currentInfo == 5) {
+            image(fishImages[4], (width / 2) - 50, (height / 2) - 150, 100, 100)
+            text("This is a goldfish. They're known to be\n kept as pets in fish bowls and fish tanks.\n They were first domesticated in China 1,000 years ago.", width / 2, height / 2)
+            text("Damage: 200\n Penality: -5000 Score", width / 2, (height / 2) + 150)
+        }
+
+        // Fish 6 Shark
+        if (currentInfo == 6) {
+            image(fishImages[5], (width / 2) - 50, (height / 2) - 250, 200, 200)
+            text("This is a shark, one of the\n most dangerous predators in the ocean. They've been\n featured in movies such as 'The Meg' and 'Jaws'.", width / 2, height / 2)
+            text("Damage: 300\n Penality: Score / 6", width / 2, (height / 2) + 150)
+        }
+
+        // Fish 7 Orca
+        if (currentInfo == 7) {
+            image(fishImages[6], (width / 2) - 50, (height / 2) - 250, 300, 200)
+            text("This is an orca, also known as a\n 'killer whale'. They've been featured in marine theme parks such as\n Sea World. They got their name as sailors saw them\n hunt larger whales. ", width / 2, height / 2)
+            text("Damage: 500\n Penality: Score / 4", width / 2, (height / 2) + 150)
+        }
+    }
 }
 
 function keyPressed(event) {
     if ((event.key === 'p' || event.key === 'P') && menu == 1) {
         menu = 2;
     }
-    if ((event.key === 'q' || event.key === 'Q') && (menu == 2 || menu == 4)) {
+    if (((event.key === 'q' || event.key === 'Q') || keyCode === ESCAPE) && (menu == 2 || menu == 4 || menu == 5)) {
         menu = 0;
         stroke('black')
         settingsBtn.show()
         shopBtn.show()
+        infoBtn.show()
         difficultyBtn.hide()
+        nextInfoBtn.hide()
+        strokeWeight(0)
+        textAlign(LEFT)
     }
     if (keyCode === ENTER && menu == 0) {
         menu = 1
         shopBtn.hide()
         settingsBtn.hide()
+        infoBtn.hide()
         startSpawning()
     }
     if(keyCode === ESCAPE && menu == 2) {
         shopBtn.show()
+        settingsBtn.show()
+        infoBtn.show()
         menu = 0
     }
 
@@ -349,6 +429,7 @@ function keyPressed(event) {
         saveData.difficulty = difficulty;
         settingsBtn.show()
         shopBtn.show()
+        infoBtn.show()
         
         localStorage.setItem("trashGameSave", JSON.stringify(saveData))
     }
@@ -361,12 +442,28 @@ function shopMenu() {
     menu = 3;
     shopBtn.hide()
     settingsBtn.hide()
+    infoBtn.hide()
 }
 
 function settingsMenu() {
     menu = 4;
     shopBtn.hide()
     settingsBtn.hide()
+    infoBtn.hide()
+}
+
+function infoMenu() {
+    menu = 5;
+    shopBtn.hide()
+    settingsBtn.hide()
+    infoBtn.hide()
+}
+
+function nextInfo() {
+    currentInfo++
+    if(currentInfo > 7) {
+        currentInfo = 1
+    }
 }
 
 function increaseDifficulty() {
@@ -623,33 +720,33 @@ function moveFishes() {
         image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
         fishes[i].fishX -= fishSpeed;
         if(playerX < fishes[i].fishX + fishWidth && playerX + playerWidth > fishes[i].fishX && playerY < fishes[i].fishY + fishHeight && playerY + playerHeight > fishes[i].fishY) {
-            if(fishes[i].img == fishImages[0]) {
-                damageHealth(100)
-                incrementScore(-1000)
-                fishes.splice(i, 1)
-                continue;
-            }
-            if(fishes[i].img == fishImages[1]) {
+            if(fishes[i].img == fishImages[0]) { // Tilapia
                 damageHealth(80)
                 incrementScore(-800)
                 fishes.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[2]) {
+            if(fishes[i].img == fishImages[1]) { // Queen Angelfish
+                damageHealth(100)
+                incrementScore(-1000)
+                fishes.splice(i, 1)
+                continue;
+            }
+            if(fishes[i].img == fishImages[2]) { // Squirrelfish
                 damageHealth(150)
                 incrementScore(-1500)
                 fishes.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[3]) {
-                damageHealth(500)
-                incrementScore(-5000)
+            if(fishes[i].img == fishImages[3]) { // Rudd
+                damageHealth(200)
+                incrementScore(-2500)
                 fishes.splice(i, 1)
                 continue;
             }
-            if(fishes[i].img == fishImages[4]) {
-                damageHealth(200)
-                incrementScore(-2500)
+            if(fishes[i].img == fishImages[4]) { // Goldfish
+                damageHealth(250)
+                incrementScore(-5000)
                 fishes.splice(i, 1)
                 continue;
             }
