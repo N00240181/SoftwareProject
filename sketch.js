@@ -41,6 +41,9 @@ let menu = 0;
 let goldAdded = 0;
 let once = false;
 let paused;
+let exitBtn;
+let exitX = 20;
+let exitY = 460;
 let saveData;
 let shopBtn;
 let shopX = 30
@@ -134,6 +137,7 @@ function damageHealth(num) {
         shopBtn.show()
         infoBtn.show()
         reset()
+        score = 0;
     }
 }
 
@@ -222,6 +226,10 @@ function setup() {
     difficultyBtn.position(difficultyX, difficultyY)
     difficultyBtn.mousePressed(increaseDifficulty)
     difficultyBtn.hide()
+    exitBtn = createButton('<')
+    exitBtn.position(exitX, exitY)
+    exitBtn.mousePressed(exitMenu)
+    exitBtn.hide()
     }
 }
 
@@ -250,6 +258,7 @@ function draw() {
         text("Trash Game", 20, 400)
         textSize(14)
         text("Press S to Save!", 20, 440)
+        text("Press ENTER to Play!", 20, 460)
         if (keyIsPressed && (key === "s" || key === "S")) {
             textSize(14)
             text("Saved!", 130, 440)
@@ -279,6 +288,7 @@ function draw() {
         text("Game is paused", 540, 20)
         clearInterval(itemInterval)
         clearInterval(fishInterval)
+        exitBtn.show()
     }
     if(menu == 3) {
         frameRate(5)
@@ -306,10 +316,11 @@ function draw() {
             clearInterval(itemInterval)
             itemInterval = setInterval(spawnItems, itemSpawnRate)
         }
+        exitBtn.show()
     }
 
     if(menu == 4) {
-        frameRate(1)
+        frameRate(60)
         difficultyBtn.show()
         textSize(18)
         background('grey')
@@ -317,11 +328,13 @@ function draw() {
         text("Press H to enable hitboxes", 20, 80)
         text(`Currently ${hitboxesEnabled}`, 20, 100)
         text(`Current difficulty level: ${difficulty}`, 20, 300)
+        exitBtn.show()
     }
 
     if(menu == 5) {
         frameRate(60)
         nextInfoBtn.show()
+        exitBtn.show()
         textSize(18)
         textAlign(CENTER)
         fill('white')
@@ -392,6 +405,7 @@ function keyPressed(event) {
         infoBtn.show()
         difficultyBtn.hide()
         nextInfoBtn.hide()
+        exitBtn.hide()
         strokeWeight(0)
         textAlign(LEFT)
     }
@@ -438,6 +452,19 @@ function keyPressed(event) {
     }
 }
 
+function exitMenu() {
+    menu = 0;
+    strokeWeight(0)
+    textAlign(LEFT)
+    exitBtn.hide()
+    difficultyBtn.hide()
+    infoBtn.hide()
+    nextInfoBtn.hide()
+    settingsBtn.show()
+    shopBtn.show()
+    infoBtn.show()
+}
+
 function shopMenu() {
     menu = 3;
     shopBtn.hide()
@@ -457,6 +484,7 @@ function infoMenu() {
     shopBtn.hide()
     settingsBtn.hide()
     infoBtn.hide()
+    exitBtn.show()
 }
 
 function nextInfo() {
