@@ -8,6 +8,7 @@ let highScore = 0;
 let health = 1000;
 let jetpackOwned = 0;
 let jetpackSpeed = 0;
+let magnetOwned = 0;
 let itemSpawnRate = 800;
 
 // Spawning, Movement, etc.
@@ -27,7 +28,7 @@ let fishes = [];
 let fishSpawnRate = 1200;
 let fishX = 0;
 let fishY = 0;
-let gold = 200;
+let gold = 20000;
 let itemWidth = 75;
 let itemHeight = 75;
 let fishWidth = 50;
@@ -50,6 +51,7 @@ let shopX = 30
 let shopY = 100
 let jetpackBtn;
 let trashIncreaseBtn;
+let magnetBtn;
 let settingsBtn;
 let settingsX = 30
 let settingsY = 120
@@ -126,10 +128,10 @@ function damageHealth(num) {
     if (health <= 0) {
         fishes = [];
         if(difficulty !== 3 && score > 0) {
-        goldAdded = Math.round(score / 1)
+        goldAdded = Math.round(score / 40)
         }
         else {
-            goldAdded = Math.round(score / 1)
+            goldAdded = Math.round(score / 10)
         }
         gold += goldAdded
         if(score > highScore) {
@@ -183,8 +185,9 @@ function setup() {
     else {
         saveData = {
             highScore: 0,
-            gold: 200,
+            gold: 20000,
             jetpackOwned: 0,
+            magnetOwned: 0,
             itemSpawnRate: 800,
             playerWidth: 60,
             playerHeight: 50,
@@ -219,6 +222,10 @@ function setup() {
     jetpackBtn.position(30, 140)
     jetpackBtn.mousePressed(buyJetpack)
     jetpackBtn.hide()
+    magnetBtn = createButton('Purchase Magnet')
+    magnetBtn.position(30, 280)
+    magnetBtn.mousePressed(buyMagnet)
+    magnetBtn.hide()
     trashIncreaseBtn = createButton('Increase Spawn Rate')
     trashIncreaseBtn.position(30, 210)
     trashIncreaseBtn.mousePressed(buyTrashIncrease)
@@ -239,7 +246,7 @@ function setup() {
     difficultyBtn.hide()
     clearBtn = createButton('Clear Storage (Double Click)')
     clearBtn.position(420, 20)
-    clearBtn.mousePressed(clearData)
+    clearBtn.doubleClicked(clearStorageData)
     clearBtn.hide()
     exitBtn = createButton('<')
     exitBtn.position(exitX, exitY)
@@ -311,15 +318,24 @@ function draw() {
         background("grey")
         text("Shop", 20, 40)
         text(gold, 20, 80)
-        text(`Jetpack: 200 gold - ${jetpackOwned} owned`, 20, 120)
+        text(`Jetpack: 200 gold - ${jetpackOwned} owned - Increases Speed`, 20, 120)
         jetpackBtn.show()
         text(`Trash Spawn Rate: 200 gold - ${itemSpawnRate / 1000} seconds`, 20, 190)
         trashIncreaseBtn.show()
+        text(`Magnet: 500 gold - ${magnetOwned} owned - Increases trash hitbox`, 20, 260)
+        magnetBtn.show()
         if(keyCode === ESCAPE) {
             goldAdded = 0
             menu = 0
             reset()
             startSpawning()
+            jetpackBtn.hide()
+            trashIncreaseBtn.hide()
+            magnetBtn.hide()
+            exitBtn.hide()
+            shopBtn.show()
+            infoBtn.show()
+            settingsBtn.show()
         }
         exitBtn.show()
     }
@@ -415,20 +431,24 @@ function keyPressed(event) {
         jetpackBtn.hide()
         clearBtn.hide()
         trashIncreaseBtn.hide()
+        magnetBtn.hide()
         strokeWeight(0)
         textAlign(LEFT)
     }
     if (keyCode === ENTER && menu == 0) {
         menu = 1
+        reset()
         shopBtn.hide()
         settingsBtn.hide()
         infoBtn.hide()
+        exitBtn.hide()
         startSpawning()
     }
     if(keyCode === ESCAPE && menu == 2) {
         shopBtn.show()
         settingsBtn.show()
         infoBtn.show()
+        exitBtn.hide()
         menu = 0
     }
 
@@ -440,6 +460,7 @@ function keyPressed(event) {
         saveData.highScore = highScore;
         saveData.gold = gold;
         saveData.jetpackOwned = jetpackOwned;
+        saveData.magnetOwned = magnetOwned;
         saveData.itemSpawnRate = itemSpawnRate
         saveData.fishSpawnRate = fishSpawnRate
         saveData.hitboxesEnabled = hitboxesEnabled;
@@ -475,6 +496,7 @@ function exitMenu() {
     jetpackBtn.hide()
     clearBtn.hide()
     trashIncreaseBtn.hide()
+    magnetBtn.hide()
 }
 
 function shopMenu() {
@@ -502,6 +524,15 @@ function buyTrashIncrease() {
     }    
 }
 
+function buyMagnet() {
+    if (gold >= 500 && itemWidth < 125 && itemHeight < 125) {
+        magnetOwned++
+        itemWidth += 5
+        itemHeight += 5
+        gold -= 500
+    }
+}
+
 function settingsMenu() {
     menu = 4;
     shopBtn.hide()
@@ -524,8 +555,10 @@ function nextInfo() {
     }
 }
 
-function clearData() {
-    clearStorage();
+function clearStorageData() {
+    localStorage.removeItem("trashGameSave")
+    console.log("cleared")
+    window.location.reload()
 }
  
 function increaseDifficulty() {
