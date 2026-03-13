@@ -1,5 +1,7 @@
-let canvasWidth = 640;
-let canvasHeight = 480;
+/* let canvasWidth = 640;
+let canvasHeight = 480; */
+let canvasWidth = 1280;
+let canvasHeight = 720;
 
 // Score, Items, etc.
 
@@ -53,8 +55,6 @@ let saveData;
 // Shop
 
 let shopBtn;
-let shopX = 30
-let shopY = 100
 let jetpackBtn;
 let trashIncreaseBtn;
 let magnetBtn;
@@ -63,8 +63,6 @@ let buySkinBtn;
 // Settings
 
 let settingsBtn;
-let settingsX = 30
-let settingsY = 120
 let difficultyBtn;
 let difficulty = 0;
 let clearBtn;
@@ -73,8 +71,6 @@ let hitboxesEnabled = false;
 // Info
 
 let infoBtn;
-let infoX = 30;
-let infoY = 140;
 let nextInfoBtn;
 let currentInfo = 1;
 
@@ -234,8 +230,8 @@ function setup() {
 
     if(menu == 0) {
     shopBtn = createButton('Shop')
-    shopBtn.position(shopX, shopY)
     shopBtn.mousePressed(shopMenu)
+    shopBtn.position((width / 2) - 150, (height / 2) + 50)
     jetpackBtn = createButton('Purchase Jetpack')
     jetpackBtn.position(30, 140)
     jetpackBtn.mousePressed(buyJetpack)
@@ -257,10 +253,10 @@ function setup() {
     changeSkinBtn.mousePressed(changeSkin)
     changeSkinBtn.hide()
     settingsBtn = createButton('Settings')
-    settingsBtn.position(settingsX, settingsY)
+    settingsBtn.position((width / 2) - 25, (height / 2) + 50)
     settingsBtn.mousePressed(settingsMenu)
     infoBtn = createButton('Information!')
-    infoBtn.position(infoX, infoY)
+    infoBtn.position((width / 2) + 100, (height / 2) + 50)
     infoBtn.mousePressed(infoMenu)
     nextInfoBtn = createButton('>')
     nextInfoBtn.position(width / 2, (height / 2) + 200)
@@ -271,15 +267,15 @@ function setup() {
     difficultyBtn.mousePressed(increaseDifficulty)
     difficultyBtn.hide()
     clearBtn = createButton('Clear Storage (Double Click)')
-    clearBtn.position(420, 20)
+    clearBtn.position(width * 0.85, 40)
     clearBtn.doubleClicked(clearStorageData)
     clearBtn.hide()
     exitBtn = createButton('<')
-    exitBtn.position(20, 460)
+    exitBtn.position(20, height - 20)
     exitBtn.mousePressed(exitMenu)
     exitBtn.hide()
     resumeBtn = createButton('Resume Game')
-    resumeBtn.position(50, 460)
+    resumeBtn.position(50, height - 20)
     resumeBtn.mousePressed(resumeGame)
     resumeBtn.hide()
     }
@@ -294,30 +290,37 @@ function startSpawning() {
 
 function draw() {
     if(menu == 0) {
+        textAlign(CENTER)
         frameRate(60)
-        background("cyan")
+        drawingContext.filter = 'blur(12px)';
+        background(bgImg)
+        drawingContext.filter = 'none';
         strokeWeight(0)
         fill("black")
-        textSize(18)
+        textSize(21)
+        push()
+        translate(width / 2, height / 2)
         if(goldAdded == 0) {
-            text(`Gold: ${gold}`, 20, 40)
+            text(`Gold: ${gold}`, 0, 120)
         }
         else {
-            text(`Gold: ${gold} + ${goldAdded}!`, 20, 40)
+            text(`Gold: ${gold} + ${goldAdded}!`, 0, 120)
         }
-        text(`High Score: ${highScore}`, 20, 60)
-        text(`Difficulty level: ${difficulty}`, 20, 80)
-        textSize(42)
-        text("Trash Game", 20, 400)
+        text(`High Score: ${highScore}`, 0, 150)
+        text(`Difficulty level: ${difficulty}`, 0, 180)
+        textSize(72)
+        text("Trash Game", 0, 0)
         textSize(14)
-        text("Press S to Save!", 20, 440)
-        text("Press ENTER to Play!", 20, 460)
+        text("Press S to Save!", 0, 250)
+        text("Press ENTER to Play!", 0, 300)
         if (keyIsPressed && (key === "s" || key === "S")) {
-            textSize(14)
-            text("Saved!", 130, 440)
+            textSize(10)
+            text("Saved!", 0, 275)
         }
+        pop()
     }
     if(menu == 1) {
+    textAlign(LEFT)
     frameRate(60)
     score += 1
     goldAdded = 0
@@ -342,15 +345,17 @@ function draw() {
     moveFishes();
     }
     if(menu == 2) {
+        textAlign(LEFT)
         background(0, 1)
         fill("white")
-        text("Game is paused", 540, 20)
+        text("Game is paused", width - 100, 20)
         clearInterval(itemInterval)
         clearInterval(fishInterval)
         exitBtn.show()
         resumeBtn.show()
     }
     if(menu == 3) {
+        textAlign(LEFT)
         frameRate(5)
         textSize(24)
         background("grey")
@@ -389,6 +394,7 @@ function draw() {
     }
 
     if(menu == 4) {
+        textAlign(LEFT)
         frameRate(60)
         difficultyBtn.show()
         textSize(18)
@@ -483,7 +489,7 @@ function keyPressed(event) {
         buySkinBtn.hide()
         changeSkinBtn.hide()
         strokeWeight(0)
-        textAlign(LEFT)
+        textAlign(CENTER)
     }
     if (keyCode === ENTER && menu == 0) {
         menu = 1
@@ -539,7 +545,7 @@ function keyPressed(event) {
 function exitMenu() {
     menu = 0;
     strokeWeight(0)
-    textAlign(LEFT)
+    textAlign(CENTER)
     exitBtn.hide()
     difficultyBtn.hide()
     infoBtn.hide()
@@ -735,8 +741,8 @@ function changeDifficulty() {
 
 function spawnItems() {
     let item = {
-        itemX: 690,
-        itemY: Math.floor(Math.random() * 420),
+        itemX: width + 50,
+        itemY: Math.floor(Math.random() * height - 40),
         img: itemImages[Math.floor(random(itemImages.length))]
     }
     items.push(item);
@@ -744,8 +750,8 @@ function spawnItems() {
 
 function spawnFishes() {
     let fish = {
-        fishX: 690,
-        fishY: Math.floor(Math.random() * 420),
+        fishX: width + 50,
+        fishY: Math.floor(Math.random() * height - 40),
         img: fishImages[Math.floor(random(fishImages.length))]
     }
     fishes.push(fish);
