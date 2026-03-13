@@ -12,9 +12,12 @@ let magnetOwned = 0;
 let itemSpawnRate = 800;
 
 // Spawning, Movement, etc.
+
 let itemInterval;
 let fishInterval;
 let player;
+let skin = 0;
+let skinOwned = false;
 let playerX = 10;
 let playerY = 100;
 let playerWidth = 60;
@@ -36,6 +39,7 @@ let fishHeight = 50;
 let fishSpeed = 2;
 let randItemImage;
 let type;
+
 // Menus, etc.
 let bgColor = "cyan";
 let menu = 0;
@@ -43,32 +47,42 @@ let goldAdded = 0;
 let once = false;
 let paused;
 let exitBtn;
-let exitX = 20;
-let exitY = 460;
+let resumeBtn;
 let saveData;
+
+// Shop
+
 let shopBtn;
 let shopX = 30
 let shopY = 100
 let jetpackBtn;
 let trashIncreaseBtn;
 let magnetBtn;
+let buySkinBtn;
+
+// Settings
+
 let settingsBtn;
 let settingsX = 30
 let settingsY = 120
 let difficultyBtn;
-let difficultyX = 60
-let difficultyY = 120
 let difficulty = 0;
 let clearBtn;
+let hitboxesEnabled = false;
+
+// Info
+
 let infoBtn;
 let infoX = 30;
 let infoY = 140;
 let nextInfoBtn;
 let currentInfo = 1;
-let hitboxesEnabled = false;
 
 function preload() {
-    playerImg = loadImage('images/player/player.png');
+    playerImg = [
+        loadImage('images/player/player.png'),
+        loadImage('images/player/wojak.gif')
+    ]
     bgImg = loadImage('/images/background/background.png')
     itemImages = [
         loadImage('/images/bags/blackbag.png'),
@@ -113,7 +127,7 @@ function incrementScore(num) {
 }
 
 function spawnPlayer() {
-    image(playerImg, playerX, playerY, playerWidth, playerHeight);
+    image(playerImg[skin], playerX, playerY, playerWidth, playerHeight);
     if(hitboxesEnabled) {
             noFill()
             stroke('yellow')
@@ -189,15 +203,17 @@ function setup() {
             jetpackOwned: 0,
             magnetOwned: 0,
             itemSpawnRate: 800,
-            playerWidth: 60,
-            playerHeight: 50,
+            playerWidth: playerWidth,
+            playerHeight: playerHeight,
             fishSpawnRate: 1200,
             hitboxesEnabled: false,
             health: 1000,
             playerSpeed: 3,
             itemSpeed: 3,
             fishSpeed: 2,
-            difficulty: 0
+            difficulty: 0,
+            skin: 0,
+            skinOwned: false
         }
     }
     highScore = saveData.highScore;
@@ -213,6 +229,8 @@ function setup() {
     playerWidth = saveData.playerWidth;
     playerHeight = saveData.playerHeight
     difficulty = saveData.difficulty
+    skin = saveData.skin
+    skinOwned = saveData.skinOwned
 
     if(menu == 0) {
     shopBtn = createButton('Shop')
@@ -230,6 +248,14 @@ function setup() {
     trashIncreaseBtn.position(30, 210)
     trashIncreaseBtn.mousePressed(buyTrashIncrease)
     trashIncreaseBtn.hide()
+    buySkinBtn = createButton('Purchase New Skin')
+    buySkinBtn.position(30, 350)
+    buySkinBtn.mousePressed(buySkin)
+    buySkinBtn.hide()
+    changeSkinBtn = createButton('Swap Skin')
+    changeSkinBtn.position(30, 350)
+    changeSkinBtn.mousePressed(changeSkin)
+    changeSkinBtn.hide()
     settingsBtn = createButton('Settings')
     settingsBtn.position(settingsX, settingsY)
     settingsBtn.mousePressed(settingsMenu)
@@ -241,7 +267,7 @@ function setup() {
     nextInfoBtn.mousePressed(nextInfo)
     nextInfoBtn.hide()
     difficultyBtn = createButton('Change Difficulty')
-    difficultyBtn.position(difficultyX, difficultyY)
+    difficultyBtn.position(30, 120)
     difficultyBtn.mousePressed(increaseDifficulty)
     difficultyBtn.hide()
     clearBtn = createButton('Clear Storage (Double Click)')
@@ -249,9 +275,13 @@ function setup() {
     clearBtn.doubleClicked(clearStorageData)
     clearBtn.hide()
     exitBtn = createButton('<')
-    exitBtn.position(exitX, exitY)
+    exitBtn.position(20, 460)
     exitBtn.mousePressed(exitMenu)
     exitBtn.hide()
+    resumeBtn = createButton('Resume Game')
+    resumeBtn.position(50, 460)
+    resumeBtn.mousePressed(resumeGame)
+    resumeBtn.hide()
     }
 }
 
@@ -266,6 +296,7 @@ function draw() {
     if(menu == 0) {
         frameRate(60)
         background("cyan")
+        strokeWeight(0)
         fill("black")
         textSize(18)
         if(goldAdded == 0) {
@@ -293,12 +324,18 @@ function draw() {
     background(bgImg);
     textSize(12);
     fill("white")
-    stroke(1)
+    stroke(0)
+    strokeWeight(1)
+
+    if(score < 0) {
+        score = 0
+    }
     
     text(`Score: ${score.toFixed(0)}`, 10, 20);
     text(`Health: ${health}`, 10, 40);
     text(`Speed: ${playerSpeed}`, 10, 60)
     text(`Trash Spawn Rate: ${itemSpawnRate / 1000} seconds`, 10, 80)
+    text(`Magnets: ${magnetOwned}`, 10, 100)
     spawnPlayer();
     movePlayer();
     moveItems()
@@ -311,6 +348,7 @@ function draw() {
         clearInterval(itemInterval)
         clearInterval(fishInterval)
         exitBtn.show()
+        resumeBtn.show()
     }
     if(menu == 3) {
         frameRate(5)
@@ -324,6 +362,14 @@ function draw() {
         trashIncreaseBtn.show()
         text(`Magnet: 500 gold - ${magnetOwned} owned - Increases trash hitbox`, 20, 260)
         magnetBtn.show()
+        if(!skinOwned) {
+            text(`New Skin! 2500 gold`, 20, 330)
+            buySkinBtn.show()
+        }
+        if(skinOwned) {
+            text(`Current Skin - ${skin}`, 20, 330)
+            changeSkinBtn.show()
+        }
         if(keyCode === ESCAPE) {
             goldAdded = 0
             menu = 0
@@ -332,6 +378,8 @@ function draw() {
             jetpackBtn.hide()
             trashIncreaseBtn.hide()
             magnetBtn.hide()
+            buySkinBtn.hide()
+            changeSkinBtn.hide()
             exitBtn.hide()
             shopBtn.show()
             infoBtn.show()
@@ -432,6 +480,8 @@ function keyPressed(event) {
         clearBtn.hide()
         trashIncreaseBtn.hide()
         magnetBtn.hide()
+        buySkinBtn.hide()
+        changeSkinBtn.hide()
         strokeWeight(0)
         textAlign(LEFT)
     }
@@ -449,6 +499,8 @@ function keyPressed(event) {
         settingsBtn.show()
         infoBtn.show()
         exitBtn.hide()
+        resumeBtn.hide()
+        strokeWeight(0)
         menu = 0
     }
 
@@ -471,6 +523,8 @@ function keyPressed(event) {
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
         saveData.difficulty = difficulty;
+        saveData.skin = skin;
+        saveData.skinOwned = skinOwned;
         settingsBtn.show()
         shopBtn.show()
         infoBtn.show()
@@ -497,6 +551,16 @@ function exitMenu() {
     clearBtn.hide()
     trashIncreaseBtn.hide()
     magnetBtn.hide()
+    buySkinBtn.hide()
+    changeSkinBtn.hide()
+    resumeBtn.hide()
+}
+
+function resumeGame() {
+    menu = 1;
+    exitBtn.hide()
+    resumeBtn.hide()
+    startSpawning()
 }
 
 function shopMenu() {
@@ -530,6 +594,37 @@ function buyMagnet() {
         itemWidth += 5
         itemHeight += 5
         gold -= 500
+    }
+}
+
+function buySkin() {
+    if (gold >= 2500) {
+        skin = 1
+        gold -= 2500
+        skinOwned = true;
+        playerWidth = 80
+        playerHeight = 70
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+        buySkinBtn.hide()
+        changeSkinBtn.show()
+    }
+}
+
+function changeSkin() {
+    if (skin == 0) {
+        skin++
+        playerWidth = 80
+        playerHeight = 70
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+    }
+    else {
+        skin = 0
+        playerWidth = 60
+        playerHeight = 50
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
     }
 }
 
@@ -579,16 +674,12 @@ function changeDifficulty() {
         fishSpawnRate = 1200
         itemSpeed = 2
         itemSpawnRate = 800
-        playerWidth = 60
-        playerHeight = 50
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
         saveData.fishSpeed = fishSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.itemSpawnRate = itemSpawnRate;
         saveData.fishSpawnRate = fishSpawnRate
-        saveData.playerWidth = playerWidth;
-        saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
         saveData.difficulty = difficulty;
     }
@@ -599,16 +690,12 @@ function changeDifficulty() {
         fishSpawnRate = 1100
         itemSpeed = 3
         itemSpawnRate = 750
-        playerWidth = 60
-        playerHeight = 50
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
         saveData.fishSpeed = fishSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.itemSpawnRate = itemSpawnRate;
         saveData.fishSpawnRate = fishSpawnRate
-        saveData.playerWidth = playerWidth;
-        saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
         saveData.difficulty = difficulty;
     }
@@ -619,16 +706,12 @@ function changeDifficulty() {
         fishSpawnRate = 1000
         itemSpeed = 4
         itemSpawnRate = 700
-        playerWidth = 50
-        playerHeight = 45
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
         saveData.fishSpeed = fishSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.itemSpawnRate = itemSpawnRate;
         saveData.fishSpawnRate = fishSpawnRate
-        saveData.playerWidth = playerWidth;
-        saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
         saveData.difficulty = difficulty;
     }
@@ -639,16 +722,12 @@ function changeDifficulty() {
         fishSpawnRate = 950
         itemSpeed = 4
         itemSpawnRate = 600
-        playerWidth = 40
-        playerHeight = 40
         saveData.health = health;
         saveData.playerSpeed = playerSpeed;
         saveData.fishSpeed = fishSpeed;
         saveData.itemSpeed = itemSpeed;
         saveData.itemSpawnRate = itemSpawnRate;
         saveData.fishSpawnRate = fishSpawnRate
-        saveData.playerWidth = playerWidth;
-        saveData.playerHeight = playerHeight;
         saveData.hitboxesEnabled = hitboxesEnabled;
         saveData.difficulty = difficulty;
     }
