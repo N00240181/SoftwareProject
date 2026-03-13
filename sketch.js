@@ -48,6 +48,8 @@ let saveData;
 let shopBtn;
 let shopX = 30
 let shopY = 100
+let jetpackBtn;
+let trashIncreaseBtn;
 let settingsBtn;
 let settingsX = 30
 let settingsY = 120
@@ -55,6 +57,7 @@ let difficultyBtn;
 let difficultyX = 60
 let difficultyY = 120
 let difficulty = 0;
+let clearBtn;
 let infoBtn;
 let infoX = 30;
 let infoY = 140;
@@ -123,10 +126,10 @@ function damageHealth(num) {
     if (health <= 0) {
         fishes = [];
         if(difficulty !== 3 && score > 0) {
-        goldAdded = Math.round(score / 100)
+        goldAdded = Math.round(score / 1)
         }
         else {
-            goldAdded = Math.round(score / 50)
+            goldAdded = Math.round(score / 1)
         }
         gold += goldAdded
         if(score > highScore) {
@@ -212,6 +215,14 @@ function setup() {
     shopBtn = createButton('Shop')
     shopBtn.position(shopX, shopY)
     shopBtn.mousePressed(shopMenu)
+    jetpackBtn = createButton('Purchase Jetpack')
+    jetpackBtn.position(30, 140)
+    jetpackBtn.mousePressed(buyJetpack)
+    jetpackBtn.hide()
+    trashIncreaseBtn = createButton('Increase Spawn Rate')
+    trashIncreaseBtn.position(30, 210)
+    trashIncreaseBtn.mousePressed(buyTrashIncrease)
+    trashIncreaseBtn.hide()
     settingsBtn = createButton('Settings')
     settingsBtn.position(settingsX, settingsY)
     settingsBtn.mousePressed(settingsMenu)
@@ -226,6 +237,10 @@ function setup() {
     difficultyBtn.position(difficultyX, difficultyY)
     difficultyBtn.mousePressed(increaseDifficulty)
     difficultyBtn.hide()
+    clearBtn = createButton('Clear Storage (Double Click)')
+    clearBtn.position(420, 20)
+    clearBtn.mousePressed(clearData)
+    clearBtn.hide()
     exitBtn = createButton('<')
     exitBtn.position(exitX, exitY)
     exitBtn.mousePressed(exitMenu)
@@ -297,24 +312,14 @@ function draw() {
         text("Shop", 20, 40)
         text(gold, 20, 80)
         text(`Jetpack: 200 gold - ${jetpackOwned} owned`, 20, 120)
-        text(`Trash Spawn Rate: 200 gold - ${itemSpawnRate / 1000} seconds`, 20, 240)
+        jetpackBtn.show()
+        text(`Trash Spawn Rate: 200 gold - ${itemSpawnRate / 1000} seconds`, 20, 190)
+        trashIncreaseBtn.show()
         if(keyCode === ESCAPE) {
             goldAdded = 0
             menu = 0
             reset()
             startSpawning()
-        }
-        if (keyIsPressed && key === "j" && gold >= 200) {
-            jetpackSpeed += 0.2
-            playerSpeed += jetpackSpeed;
-            jetpackOwned += 1
-            gold -= 200;
-        }
-        if (keyIsPressed && key === "a" && gold >= 200 && itemSpawnRate > 100) {
-            itemSpawnRate -= 10
-            gold -= 200;
-            clearInterval(itemInterval)
-            itemInterval = setInterval(spawnItems, itemSpawnRate)
         }
         exitBtn.show()
     }
@@ -328,6 +333,7 @@ function draw() {
         text("Press H to enable hitboxes", 20, 80)
         text(`Currently ${hitboxesEnabled}`, 20, 100)
         text(`Current difficulty level: ${difficulty}`, 20, 300)
+        clearBtn.show()
         exitBtn.show()
     }
 
@@ -345,7 +351,7 @@ function draw() {
         // Fish 1 Tilapia
         if (currentInfo == 1) {
             image(fishImages[0], (width / 2) - 50, (height / 2) - 150, 100, 100)
-            text("This is the Tilapia, there are an estimated\n 100 in the world. They can be\n found in Africa and the Middle East,\n and they have been referred to as\n 'Water Chickens' because they reproduce fast and\n are easy to farm.", width / 2, height / 2)
+            text("This is the Tilapia, they can be\n found in Africa and the Middle East,\n and they have been referred to as\n 'Water Chickens' because they reproduce fast and\n are easy to farm.", width / 2, height / 2)
             text("Damage: 80\n Penality: -800 Score", width / 2, (height / 2) + 150)
         }
 
@@ -406,6 +412,9 @@ function keyPressed(event) {
         difficultyBtn.hide()
         nextInfoBtn.hide()
         exitBtn.hide()
+        jetpackBtn.hide()
+        clearBtn.hide()
+        trashIncreaseBtn.hide()
         strokeWeight(0)
         textAlign(LEFT)
     }
@@ -463,6 +472,9 @@ function exitMenu() {
     settingsBtn.show()
     shopBtn.show()
     infoBtn.show()
+    jetpackBtn.hide()
+    clearBtn.hide()
+    trashIncreaseBtn.hide()
 }
 
 function shopMenu() {
@@ -470,6 +482,24 @@ function shopMenu() {
     shopBtn.hide()
     settingsBtn.hide()
     infoBtn.hide()
+}
+
+function buyJetpack() {
+    if (gold >= 200 && jetpackOwned >= 10) {
+        jetpackSpeed += 0.2
+        playerSpeed += jetpackSpeed;
+        jetpackOwned += 1
+        gold -= 200;
+    }
+}
+
+function buyTrashIncrease() {
+    if (gold >= 200 && itemSpawnRate > 100) {
+        itemSpawnRate -= 10
+        gold -= 200;
+        clearInterval(itemInterval)
+        itemInterval = setInterval(spawnItems, itemSpawnRate)
+    }    
 }
 
 function settingsMenu() {
@@ -494,6 +524,10 @@ function nextInfo() {
     }
 }
 
+function clearData() {
+    clearStorage();
+}
+ 
 function increaseDifficulty() {
     difficulty++
     if(difficulty > 3) {
