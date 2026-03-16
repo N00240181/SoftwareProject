@@ -5,6 +5,7 @@ let canvasHeight = 720;
 
 // Score, Items, etc.
 
+let skeletonScore = 0;
 let score = 0;
 let highScore = 0;
 let health = 1000;
@@ -85,7 +86,8 @@ let currentInfo = 1;
 function preload() {
     playerImg = [
         loadImage('images/player/player.png'),
-        loadImage('images/player/wojak.gif')
+        loadImage('images/player/wojak.gif'),
+        loadImage('images/skeleton.gif')
     ]
     bgImg = loadImage('/images/background/background.png')
     itemImages = [
@@ -166,16 +168,16 @@ function damageHealth(num) {
 }
 
 function movePlayer() {
-    if(keyIsDown(UP_ARROW) || key == 'w') {
+    if(keyIsDown(UP_ARROW) || keyIsDown(87)) {
         playerY -= playerSpeed;
     }
-    if(keyIsDown(DOWN_ARROW) || key == 's') {
+    if(keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
         playerY += playerSpeed;
     }
-    if(keyIsDown(LEFT_ARROW) || key == 'a') {
+    if(keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
         playerX -= playerSpeed;
     }
-    if(keyIsDown(RIGHT_ARROW) || key == 'd') {
+    if(keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
         playerX += playerSpeed;
     }
 }
@@ -205,6 +207,7 @@ function setup() {
     }
     else {
         saveData = {
+            skeletonScore: 0,
             highScore: 0,
             gold: 20000,
             jetpackOwned: 0,
@@ -223,6 +226,7 @@ function setup() {
             skinOwned: false
         }
     }
+    skeletonScore = saveData.skeletonScore
     highScore = saveData.highScore;
     gold = saveData.gold;
     jetpackOwned = saveData.jetpackOwned;
@@ -456,7 +460,7 @@ function draw() {
             text(`New Skin! 2500 gold`, 20, 330)
             buySkinBtn.show()
         }
-        if(skinOwned) {
+        if(skinOwned || skeletonScore >= 10) {
             text(`Current Skin - ${skin}`, 20, 330)
             changeSkinBtn.show()
         }
@@ -613,6 +617,7 @@ function keyPressed(event) {
         once = true
     }
     if ((event.key === 's' || event.key === 'S') && menu == 0) {
+        saveData.skeletonScore = skeletonScore
         saveData.highScore = highScore;
         saveData.gold = gold;
         saveData.jetpackOwned = jetpackOwned;
@@ -720,6 +725,13 @@ function changeSkin() {
         skin++
         playerWidth = 80
         playerHeight = 70
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+    }
+    else if(skin == 1 && skeletonScore >= 10) {
+        skin++
+        playerWidth = 100
+        playerHeight = 100
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
     }
@@ -871,6 +883,7 @@ function moveItems() {
         }
         image(items[i].img, items[i].itemX, items[i].itemY, itemWidth, itemHeight);
         items[i].itemX -= itemSpeed;
+        items[i].itemY += sin(random(0.005, 60) * (frameCount / 10))
         if(playerX < items[i].itemX + itemWidth && playerX + playerWidth > items[i].itemX && playerY < items[i].itemY + itemHeight && playerY + playerHeight > items[i].itemY) {
             if(items[i].img == itemImages[0]) { // Black Bag
                 incrementScore(50)
@@ -963,6 +976,7 @@ function moveItems() {
                 continue;
             }
             if(items[i].img == itemImages[17]) {
+                skeletonScore += 1
                 incrementScore(1000)
                 items.splice(i, 1)
                 continue;
@@ -1002,6 +1016,7 @@ function moveFishes() {
         }
         image(fishes[i].img, fishes[i].fishX, fishes[i].fishY, fishWidth, fishHeight);
         fishes[i].fishX -= fishSpeed;
+        fishes[i].fishY += sin(0.05 * frameCount)
         if(playerX < fishes[i].fishX + fishWidth && playerX + playerWidth > fishes[i].fishX && playerY < fishes[i].fishY + fishHeight && playerY + playerHeight > fishes[i].fishY) {
             if(fishes[i].img == fishImages[0]) { // Tilapia
                 damageHealth(80)
