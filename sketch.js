@@ -8,6 +8,8 @@ let canvasHeight = 720;
 let score = 0;
 let highScore = 0;
 let health = 1000;
+let timer = 0;
+let gateOne = true;
 let jetpackOwned = 0;
 let jetpackSpeed = 0;
 let magnetOwned = 0;
@@ -31,6 +33,7 @@ let itemX = 0;
 let itemY = 0;
 let fishes = [];
 let fishSpawnRate = 1200;
+let tempFishRate = fishSpawnRate
 let fishX = 0;
 let fishY = 0;
 let gold = 20000;
@@ -151,22 +154,23 @@ function damageHealth(num) {
         settingsBtn.show()
         shopBtn.show()
         infoBtn.show()
+        saveData.fishSpawnRate = tempFishRate
         reset()
         score = 0;
     }
 }
 
 function movePlayer() {
-    if(keyIsDown(UP_ARROW)) {
+    if(keyIsDown(UP_ARROW) || key == 'w') {
         playerY -= playerSpeed;
     }
-    if(keyIsDown(DOWN_ARROW)) {
+    if(keyIsDown(DOWN_ARROW) || key == 's') {
         playerY += playerSpeed;
     }
-    if(keyIsDown(LEFT_ARROW)) {
+    if(keyIsDown(LEFT_ARROW) || key == 'a') {
         playerX -= playerSpeed;
     }
-    if(keyIsDown(RIGHT_ARROW)) {
+    if(keyIsDown(RIGHT_ARROW) || key == 'd') {
         playerX += playerSpeed;
     }
 }
@@ -177,6 +181,8 @@ function reset() {
     playerWidth = 50
     playerHeight = 60
     health = saveData.health
+    fishSpawnRate = saveData.fishSpawnRate
+    timer = 0;
     score = 0;
     items = [];
     fishes = [];
@@ -320,6 +326,7 @@ function draw() {
         pop()
     }
     if(menu == 1) {
+    timer += 1 / 60
     textAlign(LEFT)
     frameRate(60)
     score += 1
@@ -329,6 +336,15 @@ function draw() {
     fill("white")
     stroke(0)
     strokeWeight(1)
+    if(timer > 10 && gateOne == true) {
+        fishSpawnRate -= 50
+        gateOne = false
+        clearInterval(itemInterval)
+        clearInterval(fishInterval)
+        itemInterval = setInterval(spawnItems, itemSpawnRate);
+        fishInterval = setInterval(spawnFishes, fishSpawnRate);
+        startSpawning()
+    }
 
     if(score < 0) {
         score = 0
@@ -339,6 +355,9 @@ function draw() {
     text(`Speed: ${playerSpeed}`, 10, 60)
     text(`Trash Spawn Rate: ${itemSpawnRate / 1000} seconds`, 10, 80)
     text(`Magnets: ${magnetOwned}`, 10, 100)
+    text(`Fish Spawn Rate: ${fishSpawnRate / 1000} seconds`, 10, 120)
+    text(`Timer: ${timer.toFixed(0)} seconds`, 10, 140)
+    
     spawnPlayer();
     movePlayer();
     moveItems()
@@ -475,6 +494,7 @@ function keyPressed(event) {
     }
     if (((event.key === 'q' || event.key === 'Q') || keyCode === ESCAPE) && (menu == 2 || menu == 4 || menu == 5)) {
         menu = 0;
+        reset()
         stroke('black')
         settingsBtn.show()
         shopBtn.show()
@@ -488,6 +508,7 @@ function keyPressed(event) {
         magnetBtn.hide()
         buySkinBtn.hide()
         changeSkinBtn.hide()
+        resumeBtn.hide()
         strokeWeight(0)
         textAlign(CENTER)
     }
@@ -508,6 +529,10 @@ function keyPressed(event) {
         resumeBtn.hide()
         strokeWeight(0)
         menu = 0
+    }
+
+    if (keyCode === ENTER && menu == 2) {
+        resumeGame()
     }
 
     if(!once) {
