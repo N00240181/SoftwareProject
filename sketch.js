@@ -10,6 +10,11 @@ let highScore = 0;
 let health = 1000;
 let timer = 0;
 let gateOne = true;
+let gateTwo = true;
+let gateThree = true;
+let gateFour = true;
+let gateFive = true;
+let gateSix = true;
 let jetpackOwned = 0;
 let jetpackSpeed = 0;
 let magnetOwned = 0;
@@ -26,7 +31,7 @@ let playerX = 10;
 let playerY = 100;
 let playerWidth = 60;
 let playerHeight = 50;
-let playerSpeed = 3;
+let playerSpeed = 4.5;
 let itemSpeed = 3;
 let items = [];
 let itemX = 0;
@@ -181,7 +186,7 @@ function reset() {
     playerWidth = 50
     playerHeight = 60
     health = saveData.health
-    fishSpawnRate = saveData.fishSpawnRate
+    changeDifficulty()
     timer = 0;
     score = 0;
     items = [];
@@ -210,7 +215,7 @@ function setup() {
             fishSpawnRate: 1200,
             hitboxesEnabled: false,
             health: 1000,
-            playerSpeed: 3,
+            playerSpeed: 4.5,
             itemSpeed: 3,
             fishSpeed: 2,
             difficulty: 0,
@@ -301,8 +306,9 @@ function draw() {
         drawingContext.filter = 'blur(12px)';
         background(bgImg)
         drawingContext.filter = 'none';
-        strokeWeight(0)
-        fill("black")
+        stroke(0)
+        strokeWeight(3)
+        fill("white")
         textSize(21)
         push()
         translate(width / 2, height / 2)
@@ -316,7 +322,7 @@ function draw() {
         text(`Difficulty level: ${difficulty}`, 0, 180)
         textSize(72)
         text("Trash Game", 0, 0)
-        textSize(14)
+        textSize(28)
         text("Press S to Save!", 0, 250)
         text("Press ENTER to Play!", 0, 300)
         if (keyIsPressed && (key === "s" || key === "S")) {
@@ -326,7 +332,7 @@ function draw() {
         pop()
     }
     if(menu == 1) {
-    timer += 1 / 60
+    timer += 1 / 5
     textAlign(LEFT)
     frameRate(60)
     score += 1
@@ -336,8 +342,11 @@ function draw() {
     fill("white")
     stroke(0)
     strokeWeight(1)
-    if(timer > 10 && gateOne == true) {
+
+    if(timer > 20 && gateOne == true) {
         fishSpawnRate -= 50
+        itemSpeed += 0.5
+        fishSpeed += 0.75
         gateOne = false
         clearInterval(itemInterval)
         clearInterval(fishInterval)
@@ -345,6 +354,63 @@ function draw() {
         fishInterval = setInterval(spawnFishes, fishSpawnRate);
         startSpawning()
     }
+    if(timer > 40 && gateTwo == true) {
+        fishSpawnRate -= 100
+        itemSpeed += 0.5
+        fishSpeed += 0.75
+        gateTwo = false
+        clearInterval(itemInterval)
+        clearInterval(fishInterval)
+        itemInterval = setInterval(spawnItems, itemSpawnRate);
+        fishInterval = setInterval(spawnFishes, fishSpawnRate);
+        startSpawning()
+    }
+    if(timer > 60 && gateThree == true) {
+        fishSpawnRate -= 150
+        itemSpawnRate -= 200
+        itemSpeed += 0.5
+        fishSpeed += 1
+        gateThree= false
+        clearInterval(itemInterval)
+        clearInterval(fishInterval)
+        itemInterval = setInterval(spawnItems, itemSpawnRate);
+        fishInterval = setInterval(spawnFishes, fishSpawnRate);
+        startSpawning()
+    }
+    if(timer > 90 && gateFour == true) {
+        fishSpawnRate -= 150
+        itemSpawnRate -= 25
+        fishSpeed += 2
+        gateFour = false
+        clearInterval(itemInterval)
+        clearInterval(fishInterval)
+        itemInterval = setInterval(spawnItems, itemSpawnRate);
+        fishInterval = setInterval(spawnFishes, fishSpawnRate);
+        startSpawning()
+    }
+    if(timer > 150 && gateFive == true) {
+        fishSpawnRate -= 150
+        itemSpawnRate -= 25
+        fishSpeed += 3
+        gateFive = false
+        clearInterval(itemInterval)
+        clearInterval(fishInterval)
+        itemInterval = setInterval(spawnItems, itemSpawnRate);
+        fishInterval = setInterval(spawnFishes, fishSpawnRate);
+        startSpawning()
+    }
+    if(timer > 300 && gateSix == true) {
+        fishSpawnRate -= 150
+        fishSpeed += 5
+        gateSix = false
+        clearInterval(itemInterval)
+        clearInterval(fishInterval)
+        itemInterval = setInterval(spawnItems, itemSpawnRate);
+        fishInterval = setInterval(spawnFishes, fishSpawnRate);
+        startSpawning()
+    }
+    saveData.itemSpawnRate = itemSpawnRate
+    saveData.fishSpawnRate = fishSpawnRate
 
     if(score < 0) {
         score = 0
@@ -515,6 +581,13 @@ function keyPressed(event) {
     if (keyCode === ENTER && menu == 0) {
         menu = 1
         reset()
+        changeDifficulty()
+        gateOne = true
+        gateTwo = true
+        gateThree = true
+        gateFour = true
+        gateFive = true
+        gateSix = true
         shopBtn.hide()
         settingsBtn.hide()
         infoBtn.hide()
@@ -602,7 +675,7 @@ function shopMenu() {
 }
 
 function buyJetpack() {
-    if (gold >= 200 && jetpackOwned >= 10) {
+    if (gold >= 200 && jetpackOwned < 10) {
         jetpackSpeed += 0.2
         playerSpeed += jetpackSpeed;
         jetpackOwned += 1
@@ -700,7 +773,7 @@ function increaseDifficulty() {
 function changeDifficulty() {
     if (difficulty == 0) {
         health = 1000
-        playerSpeed = 3 + jetpackSpeed
+        playerSpeed = 4.5 + jetpackSpeed
         fishSpeed = 2
         fishSpawnRate = 1200
         itemSpeed = 2
@@ -716,7 +789,7 @@ function changeDifficulty() {
     }
     if (difficulty == 1) {
         health = 500;
-        playerSpeed = 2.5 + jetpackSpeed
+        playerSpeed = 4 + jetpackSpeed
         fishSpeed = 2.5
         fishSpawnRate = 1100
         itemSpeed = 3
@@ -732,7 +805,7 @@ function changeDifficulty() {
     }
     if (difficulty == 2) {
         health = 250
-        playerSpeed = 2.5 + jetpackSpeed
+        playerSpeed = 3.5 + jetpackSpeed
         fishSpeed = 3
         fishSpawnRate = 1000
         itemSpeed = 4
@@ -748,7 +821,7 @@ function changeDifficulty() {
     }
     if (difficulty == 3) {
         health = 1
-        playerSpeed = 2 + jetpackSpeed
+        playerSpeed = 3.5 + jetpackSpeed
         fishSpeed = 3.25
         fishSpawnRate = 950
         itemSpeed = 4
@@ -889,6 +962,11 @@ function moveItems() {
                 items.splice(i, 1)
                 continue;
             }
+            if(items[i].img == itemImages[17]) {
+                incrementScore(1000)
+                items.splice(i, 1)
+                continue;
+            }
         }
     }
 }
@@ -904,12 +982,12 @@ function moveFishes() {
         fishWidth = 50
         fishHeight = 50
         if(fishes[i].img == fishImages[5]) {
-            fishWidth = fishWidth * 3
-            fishHeight = fishHeight * 3
+            fishWidth = fishWidth * 2
+            fishHeight = fishHeight * 2
         }
         else if(fishes[i].img == fishImages[6]) {
-            fishWidth = fishWidth * 5
-            fishHeight = fishHeight * 5
+            fishWidth = fishWidth * 2
+            fishHeight = fishHeight * 2
         }
         else {
             fishWidth = 50
