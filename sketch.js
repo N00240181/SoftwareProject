@@ -60,6 +60,8 @@ let paused;
 let exitBtn;
 let resumeBtn;
 let saveData;
+let bgMusic;
+let musicEnabled = 0
 
 // Shop
 
@@ -125,6 +127,7 @@ function preload() {
         loadImage('images/fish/fish6.png'),
         loadImage('images/fish/fish7.png')
     ]
+    bgMusic = loadSound('sounds/Donkey_Kong_Country_-_Aquatic_Ambience_Restored.mp3')
 }
 
 function incrementScore(num) {
@@ -200,6 +203,7 @@ function reset() {
 function setup() {
     createCanvas(canvasWidth, canvasHeight);
     frameRate(60);
+    bgMusic.play()
 
     let saved = localStorage.getItem("trashGameSave");
     if(saved) {
@@ -278,7 +282,7 @@ function setup() {
     nextInfoBtn.mousePressed(nextInfo)
     nextInfoBtn.hide()
     difficultyBtn = createButton('Change Difficulty')
-    difficultyBtn.position(30, 120)
+    difficultyBtn.position(30, 165)
     difficultyBtn.mousePressed(increaseDifficulty)
     difficultyBtn.hide()
     clearBtn = createButton('Clear Storage (Double Click)')
@@ -294,6 +298,10 @@ function setup() {
     resumeBtn.mousePressed(resumeGame)
     resumeBtn.hide()
     }
+    musicBtn = createButton('Toggle Music')
+    musicBtn.position(30, 190)
+    musicBtn.mousePressed(toggleMusic)
+    musicBtn.hide()
 }
 
 function startSpawning() {
@@ -336,7 +344,7 @@ function draw() {
         pop()
     }
     if(menu == 1) {
-    timer += 1 / 5
+    timer += 1 / 60
     textAlign(LEFT)
     frameRate(60)
     score += 1
@@ -491,7 +499,8 @@ function draw() {
         text("Settings", 20, 40)
         text("Press H to enable hitboxes", 20, 80)
         text(`Currently ${hitboxesEnabled}`, 20, 100)
-        text(`Current difficulty level: ${difficulty}`, 20, 300)
+        text(`Current difficulty level: ${difficulty}`, 20, 140)
+        musicBtn.show()
         clearBtn.show()
         exitBtn.show()
     }
@@ -570,6 +579,7 @@ function keyPressed(event) {
         shopBtn.show()
         infoBtn.show()
         difficultyBtn.hide()
+        musicBtn.hide()
         nextInfoBtn.hide()
         exitBtn.hide()
         jetpackBtn.hide()
@@ -662,6 +672,7 @@ function exitMenu() {
     magnetBtn.hide()
     buySkinBtn.hide()
     changeSkinBtn.hide()
+    musicBtn.hide()
     resumeBtn.hide()
 }
 
@@ -749,6 +760,17 @@ function settingsMenu() {
     shopBtn.hide()
     settingsBtn.hide()
     infoBtn.hide()
+}
+
+function toggleMusic() {
+    musicEnabled++
+    if(musicEnabled < 1) {
+        bgMusic.stop()
+    }
+    else {
+        bgMusic.play()
+        musicEnabled = -1
+    }
 }
 
 function infoMenu() {
