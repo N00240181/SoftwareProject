@@ -73,6 +73,8 @@ let buySkinBtn;
 
 // Settings
 
+let tutorial = true;
+let tutorialBtn;
 let settingsBtn;
 let difficultyBtn;
 let difficulty = 0;
@@ -227,7 +229,8 @@ function setup() {
             fishSpeed: 2,
             difficulty: 0,
             skin: 0,
-            skinOwned: false
+            skinOwned: false,
+            tutorial: true
         }
     }
     skeletonScore = saveData.skeletonScore
@@ -246,6 +249,7 @@ function setup() {
     difficulty = saveData.difficulty
     skin = saveData.skin
     skinOwned = saveData.skinOwned
+    tutorial = saveData.tutorial
 
     if(menu == 0) {
     shopBtn = createButton('Shop')
@@ -268,7 +272,7 @@ function setup() {
     buySkinBtn.mousePressed(buySkin)
     buySkinBtn.hide()
     changeSkinBtn = createButton('Swap Skin')
-    changeSkinBtn.position(30, 350)
+    changeSkinBtn.position(30, 420)
     changeSkinBtn.mousePressed(changeSkin)
     changeSkinBtn.hide()
     settingsBtn = createButton('Settings')
@@ -297,11 +301,15 @@ function setup() {
     resumeBtn.position(50, height - 20)
     resumeBtn.mousePressed(resumeGame)
     resumeBtn.hide()
-    }
     musicBtn = createButton('Toggle Music')
     musicBtn.position(30, 190)
     musicBtn.mousePressed(toggleMusic)
     musicBtn.hide()
+    tutorialBtn = createButton('View Tutorial')
+    tutorialBtn.position(30, 210)
+    tutorialBtn.mousePressed(viewTutorial)
+    tutorialBtn.hide()
+    }
 }
 
 function startSpawning() {
@@ -312,6 +320,7 @@ function startSpawning() {
 }
 
 function draw() {
+    // Main Menu
     if(menu == 0) {
         textAlign(CENTER)
         frameRate(60)
@@ -343,6 +352,7 @@ function draw() {
         }
         pop()
     }
+    // Game
     if(menu == 1) {
     timer += 1 / 60
     textAlign(LEFT)
@@ -441,6 +451,7 @@ function draw() {
     moveItems()
     moveFishes();
     }
+    // Pause Menu
     if(menu == 2) {
         textAlign(LEFT)
         background(0, 1)
@@ -451,6 +462,7 @@ function draw() {
         exitBtn.show()
         resumeBtn.show()
     }
+    // Shop
     if(menu == 3) {
         textAlign(LEFT)
         frameRate(5)
@@ -469,7 +481,7 @@ function draw() {
             buySkinBtn.show()
         }
         if(skinOwned || skeletonScore >= 10) {
-            text(`Current Skin - ${skin}`, 20, 330)
+            text(`Current Skin - ${skin}`, 20, 400)
             changeSkinBtn.show()
         }
         if(keyCode === ESCAPE) {
@@ -489,7 +501,7 @@ function draw() {
         }
         exitBtn.show()
     }
-
+    // Settings
     if(menu == 4) {
         textAlign(LEFT)
         frameRate(60)
@@ -502,9 +514,10 @@ function draw() {
         text(`Current difficulty level: ${difficulty}`, 20, 140)
         musicBtn.show()
         clearBtn.show()
+        tutorialBtn.show()
         exitBtn.show()
     }
-
+    // Info
     if(menu == 5) {
         frameRate(60)
         nextInfoBtn.show()
@@ -565,13 +578,26 @@ function draw() {
             text("Damage: 500\n Penality: Score / 4", width / 2, (height / 2) + 150)
         }
     }
+
+    if (menu == 6) {
+        exitBtn.show()
+        drawingContext.filter = 'blur(12px)';
+        background(bgImg)
+        drawingContext.filter = 'none';
+        textSize(24)
+        textAlign(LEFT)
+        fill('white')
+        stroke('black')
+        strokeWeight(2)
+        text("Collect trash and avoid fish to build\nup your score! Score is converted to gold\nat the end of the game, which can be spent\nin the shop to unlock different skins and upgrades!\n\nUse WASD or the arrow keys to move the character,\nand press 'P' to pause the game if you need a break!\n\nGo to the info tab in the main menu to view stats about\nthe fish and trash. There's a settings menu as well,\nin case you'd like to turn off music, enable hitboxes (recommended),\nor view the tutorial again!\n\nPress ENTER to proceed with the game. Good luck!", 100, 100)
+    }
 }
 
 function keyPressed(event) {
     if ((event.key === 'p' || event.key === 'P') && menu == 1) {
         menu = 2;
     }
-    if (((event.key === 'q' || event.key === 'Q') || keyCode === ESCAPE) && (menu == 2 || menu == 4 || menu == 5)) {
+    if (((event.key === 'q' || event.key === 'Q') || keyCode === ESCAPE) && (menu == 2 || menu == 4 || menu == 5 || menu == 6)) {
         menu = 0;
         reset()
         stroke('black')
@@ -592,7 +618,13 @@ function keyPressed(event) {
         strokeWeight(0)
         textAlign(CENTER)
     }
-    if (keyCode === ENTER && menu == 0) {
+    if (keyCode === ENTER && menu == 0 && tutorial === true) {
+        menu = 6
+        shopBtn.hide()
+        settingsBtn.hide()
+        infoBtn.hide()
+    }
+    if (keyCode === ENTER && menu == 6 && tutorial === true) {
         menu = 1
         reset()
         changeDifficulty()
@@ -602,6 +634,21 @@ function keyPressed(event) {
         gateFour = true
         gateFive = true
         gateSix = true
+        tutorial = false
+        startSpawning()
+        exitBtn.hide()
+    }
+    if (keyCode === ENTER && menu == 0 && tutorial === false) {
+        menu = 1
+        reset()
+        changeDifficulty()
+        gateOne = true
+        gateTwo = true
+        gateThree = true
+        gateFour = true
+        gateFive = true
+        gateSix = true
+        tutorial = false
         shopBtn.hide()
         settingsBtn.hide()
         infoBtn.hide()
@@ -644,6 +691,7 @@ function keyPressed(event) {
         saveData.difficulty = difficulty;
         saveData.skin = skin;
         saveData.skinOwned = skinOwned;
+        saveData.tutorial = tutorial;
         settingsBtn.show()
         shopBtn.show()
         infoBtn.show()
@@ -674,6 +722,7 @@ function exitMenu() {
     changeSkinBtn.hide()
     musicBtn.hide()
     resumeBtn.hide()
+    tutorialBtn.hide()
 }
 
 function resumeGame() {
@@ -739,6 +788,13 @@ function changeSkin() {
         saveData.playerWidth = playerWidth;
         saveData.playerHeight = playerHeight;
     }
+    else if(skin == 1 && skeletonScore < 10) {
+        skin = 0
+        playerWidth = 60
+        playerHeight = 50
+        saveData.playerWidth = playerWidth;
+        saveData.playerHeight = playerHeight;
+    }
     else if(skin == 1 && skeletonScore >= 10) {
         skin++
         playerWidth = 100
@@ -760,6 +816,15 @@ function settingsMenu() {
     shopBtn.hide()
     settingsBtn.hide()
     infoBtn.hide()
+}
+
+function viewTutorial() {
+    menu = 6
+    difficultyBtn.hide()
+    musicBtn.hide()
+    clearBtn.hide()
+    tutorialBtn.hide()
+    exitBtn.show()
 }
 
 function toggleMusic() {
