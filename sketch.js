@@ -61,6 +61,7 @@ let exitBtn;
 let resumeBtn;
 let saveData;
 let bgMusic;
+let musicPitch = 1
 let musicEnabled = 0
 
 // Shop
@@ -129,7 +130,18 @@ function preload() {
         loadImage('images/fish/fish6.png'),
         loadImage('images/fish/fish7.png')
     ]
-    bgMusic = loadSound('sounds/Donkey_Kong_Country_-_Aquatic_Ambience_Restored.mp3')
+    bgMusic = loadSound('sounds/bgMusic.mp3')
+    skeletonSound = loadSound('sounds/fah.mp3')
+    playerSound = loadSound('sounds/playerhit.mp3')
+    itemSounds = [
+        loadSound('sounds/pickup1.mp3'),
+        loadSound('sounds/pickup2.mp3'),
+        loadSound('sounds/pickup3.mp3'),
+        loadSound('sounds/pickup4.mp3')
+    ]
+    menuSound = loadSound('sounds/menu.mp3')
+    gameSound = loadSound('sounds/play.mp3')
+    font = loadFont('fonts/CherryBombOne-Regular.ttf')
 }
 
 function incrementScore(num) {
@@ -188,6 +200,7 @@ function movePlayer() {
 }
 
 function reset() {
+    musicPitch = 1
     playerX = 20
     playerY = 200
     playerWidth = 50
@@ -200,12 +213,14 @@ function reset() {
     fishes = [];
     clearInterval(itemInterval)
     clearInterval(fishInterval)
+    drawingContext.filter = 'none';
 }
 
 function setup() {
     createCanvas(canvasWidth, canvasHeight);
+    textFont(font)
     frameRate(60);
-    bgMusic.play()
+    bgMusic.loop()
 
     let saved = localStorage.getItem("trashGameSave");
     if(saved) {
@@ -215,7 +230,7 @@ function setup() {
         saveData = {
             skeletonScore: 0,
             highScore: 0,
-            gold: 20000,
+            gold: 1000000,
             jetpackOwned: 0,
             magnetOwned: 0,
             itemSpawnRate: 800,
@@ -341,12 +356,15 @@ function draw() {
         }
         text(`High Score: ${highScore}`, 0, 150)
         text(`Difficulty level: ${difficulty}`, 0, 180)
-        textSize(72)
+        textSize(144)
+        stroke(0)
+        strokeWeight(16)
         text("Trash Game", 0, 0)
+        strokeWeight(4)
         textSize(28)
         text("Press S to Save!", 0, 250)
         text("Press ENTER to Play!", 0, 300)
-        if (keyIsPressed && (key === "s" || key === "S")) {
+        if (keyPressed && (key === "s" || key === "S")) {
             textSize(10)
             text("Saved!", 0, 275)
         }
@@ -366,6 +384,7 @@ function draw() {
     strokeWeight(1)
 
     if(timer > 20 && gateOne == true) {
+        increasePitch(0.02)
         fishSpawnRate -= 50
         itemSpeed += 0.5
         fishSpeed += 0.75
@@ -377,6 +396,7 @@ function draw() {
         startSpawning()
     }
     if(timer > 40 && gateTwo == true) {
+        increasePitch(0.02)
         fishSpawnRate -= 100
         itemSpeed += 0.5
         fishSpeed += 0.75
@@ -388,6 +408,7 @@ function draw() {
         startSpawning()
     }
     if(timer > 60 && gateThree == true) {
+        increasePitch(0.02)
         fishSpawnRate -= 150
         itemSpawnRate -= 200
         itemSpeed += 0.5
@@ -400,6 +421,7 @@ function draw() {
         startSpawning()
     }
     if(timer > 90 && gateFour == true) {
+        increasePitch(0.02)
         fishSpawnRate -= 150
         itemSpawnRate -= 25
         fishSpeed += 2
@@ -411,6 +433,7 @@ function draw() {
         startSpawning()
     }
     if(timer > 150 && gateFive == true) {
+        increasePitch(0.02)
         fishSpawnRate -= 150
         itemSpawnRate -= 25
         fishSpeed += 3
@@ -422,6 +445,7 @@ function draw() {
         startSpawning()
     }
     if(timer > 300 && gateSix == true) {
+        increasePitch(0.1)
         fishSpawnRate -= 150
         fishSpeed += 5
         gateSix = false
@@ -438,6 +462,9 @@ function draw() {
         score = 0
     }
     
+    textSize(18)
+    stroke(0)
+    strokeWeight(4)
     text(`Score: ${score.toFixed(0)}`, 10, 20);
     text(`Health: ${health}`, 10, 40);
     text(`Speed: ${playerSpeed}`, 10, 60)
@@ -456,7 +483,7 @@ function draw() {
         textAlign(LEFT)
         background(0, 1)
         fill("white")
-        text("Game is paused", width - 100, 20)
+        text("Game is paused", width - 200, 20)
         clearInterval(itemInterval)
         clearInterval(fishInterval)
         exitBtn.show()
@@ -619,12 +646,14 @@ function keyPressed(event) {
         textAlign(CENTER)
     }
     if (keyCode === ENTER && menu == 0 && tutorial === true) {
+        gameSound.play()
         menu = 6
         shopBtn.hide()
         settingsBtn.hide()
         infoBtn.hide()
     }
     if (keyCode === ENTER && menu == 6 && tutorial === true) {
+        gameSound.play()
         menu = 1
         reset()
         changeDifficulty()
@@ -639,6 +668,7 @@ function keyPressed(event) {
         exitBtn.hide()
     }
     if (keyCode === ENTER && menu == 0 && tutorial === false) {
+        gameSound.play()
         menu = 1
         reset()
         changeDifficulty()
@@ -666,6 +696,7 @@ function keyPressed(event) {
     }
 
     if (keyCode === ENTER && menu == 2) {
+        gameSound.play()
         resumeGame()
     }
 
@@ -674,6 +705,7 @@ function keyPressed(event) {
         once = true
     }
     if ((event.key === 's' || event.key === 'S') && menu == 0) {
+        itemSounds[1].play()
         saveData.skeletonScore = skeletonScore
         saveData.highScore = highScore;
         saveData.gold = gold;
@@ -704,6 +736,7 @@ function keyPressed(event) {
 }
 
 function exitMenu() {
+    menuSound.play()
     menu = 0;
     strokeWeight(0)
     textAlign(CENTER)
@@ -726,6 +759,7 @@ function exitMenu() {
 }
 
 function resumeGame() {
+    menuSound.play()
     menu = 1;
     exitBtn.hide()
     resumeBtn.hide()
@@ -733,6 +767,7 @@ function resumeGame() {
 }
 
 function shopMenu() {
+    menuSound.play()
     menu = 3;
     shopBtn.hide()
     settingsBtn.hide()
@@ -750,6 +785,7 @@ function buyJetpack() {
 
 function buyTrashIncrease() {
     if (gold >= 200 && itemSpawnRate > 100) {
+        menuSound.play()
         itemSpawnRate -= 10
         gold -= 200;
         clearInterval(itemInterval)
@@ -759,6 +795,7 @@ function buyTrashIncrease() {
 
 function buyMagnet() {
     if (gold >= 500 && itemWidth < 125 && itemHeight < 125) {
+        menuSound.play()
         magnetOwned++
         itemWidth += 5
         itemHeight += 5
@@ -768,6 +805,7 @@ function buyMagnet() {
 
 function buySkin() {
     if (gold >= 2500) {
+        skeletonSound.play()
         skin = 1
         gold -= 2500
         skinOwned = true;
@@ -782,6 +820,7 @@ function buySkin() {
 
 function changeSkin() {
     if (skin == 0) {
+        menuSound.play()
         skin++
         playerWidth = 80
         playerHeight = 70
@@ -789,6 +828,7 @@ function changeSkin() {
         saveData.playerHeight = playerHeight;
     }
     else if(skin == 1 && skeletonScore < 10) {
+        menuSound.play()
         skin = 0
         playerWidth = 60
         playerHeight = 50
@@ -796,6 +836,7 @@ function changeSkin() {
         saveData.playerHeight = playerHeight;
     }
     else if(skin == 1 && skeletonScore >= 10) {
+        menuSound.play()
         skin++
         playerWidth = 100
         playerHeight = 100
@@ -803,6 +844,7 @@ function changeSkin() {
         saveData.playerHeight = playerHeight;
     }
     else {
+        menuSound.play()
         skin = 0
         playerWidth = 60
         playerHeight = 50
@@ -812,6 +854,7 @@ function changeSkin() {
 }
 
 function settingsMenu() {
+    menuSound.play()
     menu = 4;
     shopBtn.hide()
     settingsBtn.hide()
@@ -819,6 +862,7 @@ function settingsMenu() {
 }
 
 function viewTutorial() {
+    menuSound.play()
     menu = 6
     difficultyBtn.hide()
     musicBtn.hide()
@@ -828,6 +872,7 @@ function viewTutorial() {
 }
 
 function toggleMusic() {
+    menuSound.play()
     musicEnabled++
     if(musicEnabled < 1) {
         bgMusic.stop()
@@ -838,7 +883,13 @@ function toggleMusic() {
     }
 }
 
+function increasePitch(num) {
+    musicPitch += num;
+    bgMusic.rate(musicPitch);
+}
+
 function infoMenu() {
+    menuSound.play()
     menu = 5;
     shopBtn.hide()
     settingsBtn.hide()
@@ -847,6 +898,7 @@ function infoMenu() {
 }
 
 function nextInfo() {
+    menuSound.play()
     currentInfo++
     if(currentInfo > 7) {
         currentInfo = 1
@@ -854,12 +906,14 @@ function nextInfo() {
 }
 
 function clearStorageData() {
+    playerSound.play()
     localStorage.removeItem("trashGameSave")
     console.log("cleared")
     window.location.reload()
 }
  
 function increaseDifficulty() {
+    menuSound.play()
     difficulty++
     if(difficulty > 3) {
         difficulty = 0
@@ -972,6 +1026,8 @@ function moveItems() {
         items[i].itemX -= itemSpeed;
         items[i].itemY += sin(random(0.005, 60) * (frameCount / 10))
         if(playerX < items[i].itemX + itemWidth && playerX + playerWidth > items[i].itemX && playerY < items[i].itemY + itemHeight && playerY + playerHeight > items[i].itemY) {
+            let itemSound = Math.floor(random(itemSounds.length))
+            itemSounds[itemSound].play()
             if(items[i].img == itemImages[0]) { // Black Bag
                 incrementScore(50)
                 items.splice(i, 1)
@@ -1064,6 +1120,7 @@ function moveItems() {
             }
             if(items[i].img == itemImages[17]) {
                 skeletonScore += 1
+                skeletonSound.play()
                 incrementScore(1000)
                 items.splice(i, 1)
                 continue;
@@ -1105,6 +1162,7 @@ function moveFishes() {
         fishes[i].fishX -= fishSpeed;
         fishes[i].fishY += sin(0.05 * frameCount)
         if(playerX < fishes[i].fishX + fishWidth && playerX + playerWidth > fishes[i].fishX && playerY < fishes[i].fishY + fishHeight && playerY + playerHeight > fishes[i].fishY) {
+            playerSound.play()
             if(fishes[i].img == fishImages[0]) { // Tilapia
                 damageHealth(80)
                 incrementScore(-800)
